@@ -1,17 +1,31 @@
-## Description
+# Description
 
-<!-- Brief description of what this PR changes and why. -->
+What does this PR do, how, and why?
 
 ## Risk Surface
 
-- [ ] This PR changes payment routing logic
-- [ ] This PR changes access control
-- [ ] This PR modifies the clone/deployer pattern
-- [ ] This PR adds new external calls
+What new trust boundary, failure mode, operational dependency, or integration caveat does this PR introduce or remove?
+
+## RISKS.md Impact
+
+- [ ] No runtime, admin, deployment, or integration risk surface changed
+- [ ] Updated this repo's `RISKS.md`
+- [ ] Updated `/v6/evm/RISKS.md` because ecosystem behavior changed
+- [ ] If no `RISKS.md` update was needed, I explained why in this PR
+
+Reference: [`/v6/evm/docs/RISKS_MAINTENANCE.md`](../docs/RISKS_MAINTENANCE.md)
 
 ## Checklist
 
-- [ ] Tests pass locally (`forge test`)
-- [ ] Code is formatted (`forge fmt --check`)
-- [ ] NatDoc comments are accurate
-- [ ] RISKS.md updated if new risks introduced
+- [ ] Tests cover the behavior change
+- [ ] Code is natspec'd where needed
+- [ ] Code is linted and formatted
+- [ ] I ran the relevant tests locally
+- [ ] I checked for stale docs and updated them where needed
+
+## Interactions
+
+These changes impact the following contracts or docs:
+
+- Directly:
+- Indirectly:

@@ -61,15 +61,6 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     bool public override defaultAddToBalance;
 
     //*********************************************************************//
-    // ------------------------- public views ---------------------------- //
-    //*********************************************************************//
-
-    /// @dev See {IERC165-supportsInterface}.
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
-        return interfaceId == type(IJBProjectPayer).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    //*********************************************************************//
     // -------------------------- constructor ---------------------------- //
     //*********************************************************************//
 
@@ -78,6 +69,35 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     constructor(IJBDirectory directory) Ownable(msg.sender) {
         DIRECTORY = directory;
         DEPLOYER = msg.sender;
+    }
+
+    //*********************************************************************//
+    // ------------------------- receive / fallback ---------------------- //
+    //*********************************************************************//
+
+    /// @notice Received funds are paid to the default project using the stored default properties.
+    /// @dev Uses `addToBalanceOf` if there's a preference to do so. Otherwise uses `pay`.
+    /// @dev This function is called automatically when the contract receives an ETH payment.
+    receive() external payable virtual override {
+        if (defaultAddToBalance) {
+            _addToBalanceOf({
+                projectId: defaultProjectId,
+                token: JBConstants.NATIVE_TOKEN,
+                amount: address(this).balance,
+                memo: defaultMemo,
+                metadata: defaultMetadata
+            });
+        } else {
+            _pay({
+                projectId: defaultProjectId,
+                token: JBConstants.NATIVE_TOKEN,
+                amount: address(this).balance,
+                beneficiary: defaultBeneficiary == address(0) ? payable(tx.origin) : defaultBeneficiary,
+                minReturnedTokens: 0,
+                memo: defaultMemo,
+                metadata: defaultMetadata
+            });
+        }
     }
 
     //*********************************************************************//
@@ -245,32 +265,12 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     }
 
     //*********************************************************************//
-    // ----------------------- default receive --------------------------- //
+    // -------------------------- public views --------------------------- //
     //*********************************************************************//
 
-    /// @notice Received funds are paid to the default project using the stored default properties.
-    /// @dev Uses `addToBalanceOf` if there's a preference to do so. Otherwise uses `pay`.
-    /// @dev This function is called automatically when the contract receives an ETH payment.
-    receive() external payable virtual override {
-        if (defaultAddToBalance) {
-            _addToBalanceOf({
-                projectId: defaultProjectId,
-                token: JBConstants.NATIVE_TOKEN,
-                amount: address(this).balance,
-                memo: defaultMemo,
-                metadata: defaultMetadata
-            });
-        } else {
-            _pay({
-                projectId: defaultProjectId,
-                token: JBConstants.NATIVE_TOKEN,
-                amount: address(this).balance,
-                beneficiary: defaultBeneficiary == address(0) ? payable(tx.origin) : defaultBeneficiary,
-                minReturnedTokens: 0,
-                memo: defaultMemo,
-                metadata: defaultMetadata
-            });
-        }
+    /// @dev See {IERC165-supportsInterface}.
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
+        return interfaceId == type(IJBProjectPayer).interfaceId || super.supportsInterface(interfaceId);
     }
 
     //*********************************************************************//
