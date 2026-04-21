@@ -310,6 +310,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         uint256 payableValue = token == JBConstants.NATIVE_TOKEN ? amount : 0;
 
         // Send funds to the terminal.
+        // slither-disable-next-line unused-return
         terminal.pay{value: payableValue}({
             projectId: projectId,
             token: token,
