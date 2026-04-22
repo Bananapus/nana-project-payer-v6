@@ -92,7 +92,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
                 projectId: defaultProjectId,
                 token: JBConstants.NATIVE_TOKEN,
                 amount: address(this).balance,
-                beneficiary: defaultBeneficiary == address(0) ? payable(tx.origin) : defaultBeneficiary,
+                beneficiary: defaultBeneficiary == address(0) ? payable(msg.sender) : defaultBeneficiary,
                 minReturnedTokens: 0,
                 memo: defaultMemo,
                 metadata: defaultMetadata
@@ -317,7 +317,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
             amount: amount,
             beneficiary: beneficiary != address(0)
                 ? beneficiary
-                : defaultBeneficiary != address(0) ? defaultBeneficiary : tx.origin,
+                : defaultBeneficiary != address(0) ? defaultBeneficiary : msg.sender,
             minReturnedTokens: minReturnedTokens,
             memo: memo,
             metadata: metadata
