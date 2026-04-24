@@ -39,7 +39,7 @@ The system has two contracts. `JBProjectPayerDeployer` is a permissionless facto
 3. If `pay` mode: calls `_pay()` with default values.
 4. `_pay()` looks up the terminal via `DIRECTORY.primaryTerminalOf(defaultProjectId, NATIVE_TOKEN)`.
 5. If no terminal found: reverts with `JBProjectPayer_TerminalNotFound`.
-6. Calls `terminal.pay{value: amount}(...)` forwarding all accumulated ETH.
+6. Calls `terminal.pay{value: amount}(...)` forwarding only the received ETH (`msg.value`).
 
 ### ERC20 Payment via pay()
 
