@@ -127,7 +127,8 @@ contract ProjectPayerFork is Test {
         assertGt(tokenBalance, 0, "beneficiary received no project tokens");
 
         // Terminal recorded the payment.
-        uint256 terminalBalance = jbTerminalStore.balanceOf(address(jbMultiTerminal), projectId, JBConstants.NATIVE_TOKEN);
+        uint256 terminalBalance =
+            jbTerminalStore.balanceOf(address(jbMultiTerminal), projectId, JBConstants.NATIVE_TOKEN);
         assertGe(terminalBalance, amount, "terminal balance too low");
     }
 
@@ -157,7 +158,8 @@ contract ProjectPayerFork is Test {
         assertEq(tokensAfter, tokensBefore, "tokens minted during addToBalance");
 
         // Terminal balance increased.
-        uint256 terminalBalance = jbTerminalStore.balanceOf(address(jbMultiTerminal), projectId, JBConstants.NATIVE_TOKEN);
+        uint256 terminalBalance =
+            jbTerminalStore.balanceOf(address(jbMultiTerminal), projectId, JBConstants.NATIVE_TOKEN);
         assertGe(terminalBalance, amount, "terminal balance too low");
     }
 
@@ -280,14 +282,11 @@ contract ProjectPayerFork is Test {
 
         JBAccountingContext[] memory tokensToAccept = new JBAccountingContext[](1);
         tokensToAccept[0] = JBAccountingContext({
-            token: JBConstants.NATIVE_TOKEN,
-            decimals: 18,
-            currency: uint32(uint160(JBConstants.NATIVE_TOKEN))
+            token: JBConstants.NATIVE_TOKEN, decimals: 18, currency: uint32(uint160(JBConstants.NATIVE_TOKEN))
         });
 
         JBTerminalConfig[] memory terminalConfigs = new JBTerminalConfig[](1);
-        terminalConfigs[0] =
-            JBTerminalConfig({terminal: jbMultiTerminal, accountingContextsToAccept: tokensToAccept});
+        terminalConfigs[0] = JBTerminalConfig({terminal: jbMultiTerminal, accountingContextsToAccept: tokensToAccept});
 
         id = jbController.launchProjectFor({
             owner: multisig,
