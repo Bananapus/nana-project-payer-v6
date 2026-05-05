@@ -126,8 +126,10 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         // Only the deployer can initialize clones.
         if (msg.sender != DEPLOYER) revert JBProjectPayer_AlreadyInitialized();
 
-        // Set the default values.
+        // Set the default values. The deployer emits the initialized defaults in its DeployProjectPayer event.
+        // slither-disable-next-line events-maths
         defaultProjectId = projectId;
+        // slither-disable-next-line missing-zero-check
         defaultBeneficiary = beneficiary;
         defaultMemo = memo;
         defaultMetadata = metadata;
@@ -155,8 +157,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         override
         onlyOwner
     {
-        // Set the default values.
+        // Set the default values. A zero beneficiary intentionally falls back to msg.sender during pay routing.
         defaultProjectId = projectId;
+        // slither-disable-next-line missing-zero-check
         defaultBeneficiary = beneficiary;
         defaultMemo = memo;
         defaultMetadata = metadata;

@@ -39,7 +39,7 @@ This repo provides a way for anyone to deploy a payable address that automatical
 
 **Failure Modes**:
 - If the project has no terminal for ETH, payments will revert when someone sends ETH.
-- If the beneficiary is `address(0)` and no one sets it, project tokens go to `tx.origin`.
+- If the beneficiary is `address(0)` and no one sets it, project tokens go to the payer caller (`msg.sender`).
 
 **Postconditions**:
 - A new `JBProjectPayer` clone exists with the specified defaults.
@@ -99,6 +99,7 @@ This repo provides a way for anyone to deploy a payable address that automatical
 - The project payer trusts `JBDirectory` to return the correct terminal.
 - The project payer trusts the terminal to handle funds correctly.
 - The owner is trusted to configure sensible defaults.
+- Relayed or contract-based payments should set an explicit beneficiary instead of relying on the `msg.sender` fallback.
 
 ## Hand-Offs
 

@@ -9,6 +9,7 @@ Deploys payable addresses that automatically route received ETH or ERC20 tokens 
 | [ADMINISTRATION.md](ADMINISTRATION.md) | Control model and privileged surfaces |
 | [SKILLS.md](SKILLS.md) | AI agent guidance |
 | [RISKS.md](RISKS.md) | Security and operational risks |
+| [AUDIT_INSTRUCTIONS.md](AUDIT_INSTRUCTIONS.md) | Practical audit scope and commands |
 
 ## Overview
 
@@ -46,9 +47,10 @@ npm install
 ## Development
 
 ```bash
-forge test          # Run tests
-forge fmt           # Format code
-forge coverage      # Coverage report
+forge test --deny notes
+forge fmt --check
+forge build --deny notes --sizes --skip "*/test/**" --skip "*/script/**"
+npm pack --dry-run --json
 ```
 
 ## Deployment
@@ -81,7 +83,7 @@ forge script script/Deploy.s.sol --broadcast --rpc-url <RPC_URL>
 
 ## Risks and Notes
 
-- **`tx.origin` fallback**: When no beneficiary is configured, project tokens go to `tx.origin`. Smart contract wallets (multisigs) should always set a `defaultBeneficiary`.
+- **Beneficiary fallback**: When no beneficiary is configured, project tokens go to `msg.sender`. Smart contract wallets and relayers should set a `defaultBeneficiary` or pass an explicit beneficiary.
 - **Fee-on-transfer tokens**: The contract measures actual balance changes, correctly handling fee-on-transfer tokens.
 - **ERC20 approval**: The payer approves the terminal for each payment. Residual allowances may remain if the terminal doesn't pull the full amount.
 - **No sweep function**: Tokens accidentally sent to the payer (outside of `pay()`/`addToBalanceOf()`) may be stuck. This is intentional to keep the contract simple.

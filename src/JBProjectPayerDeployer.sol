@@ -57,6 +57,7 @@ contract JBProjectPayerDeployer is IJBProjectPayerDeployer {
         projectPayer = IJBProjectPayer(payable(Clones.clone(IMPLEMENTATION)));
 
         // Initialize the project payer.
+        // slither-disable-next-line reentrancy-benign
         projectPayer.initialize({
             projectId: defaultProjectId,
             beneficiary: defaultBeneficiary,
@@ -66,6 +67,7 @@ contract JBProjectPayerDeployer is IJBProjectPayerDeployer {
             owner: owner
         });
 
+        // slither-disable-next-line reentrancy-benign,reentrancy-events
         emit DeployProjectPayer({
             projectPayer: projectPayer,
             defaultProjectId: defaultProjectId,

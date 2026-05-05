@@ -191,7 +191,7 @@ contract JBProjectPayer_Unit is Test {
 
         // Send ETH directly to the payer.
         vm.deal(caller, amount);
-        vm.prank(caller, caller); // set both msg.sender and tx.origin
+        vm.prank(caller);
         (bool success,) = address(payer).call{value: amount}("");
         assertTrue(success);
 
@@ -243,7 +243,7 @@ contract JBProjectPayer_Unit is Test {
         assertFalse(recordedReturnFees);
     }
 
-    function test_Receive_BeneficiaryFallbackToTxOrigin() public {
+    function test_Receive_BeneficiaryFallbackToMsgSender() public {
         // Deploy payer with no default beneficiary.
         IJBProjectPayer noBeneficiaryPayer = deployer.deployProjectPayer({
             defaultProjectId: PROJECT_ID,
@@ -256,11 +256,11 @@ contract JBProjectPayer_Unit is Test {
 
         uint256 amount = 1 ether;
         vm.deal(caller, amount);
-        vm.prank(caller, caller);
+        vm.prank(caller);
         (bool success,) = address(noBeneficiaryPayer).call{value: amount}("");
         assertTrue(success);
 
-        // Beneficiary should be tx.origin (caller).
+        // Beneficiary should be msg.sender.
         (,,, address recordedBeneficiary,,,) = terminal.payRecords(0);
         assertEq(recordedBeneficiary, caller);
     }
@@ -352,7 +352,7 @@ contract JBProjectPayer_Unit is Test {
         assertEq(recordedBeneficiary, beneficiary); // defaultBeneficiary
     }
 
-    function test_Pay_BeneficiaryFallbackToTxOrigin() public {
+    function test_Pay_BeneficiaryFallbackToMsgSender() public {
         // Deploy payer with no default beneficiary, then pay with beneficiary=address(0).
         IJBProjectPayer noBeneficiaryPayer = deployer.deployProjectPayer({
             defaultProjectId: PROJECT_ID,
@@ -365,7 +365,7 @@ contract JBProjectPayer_Unit is Test {
 
         uint256 amount = 1 ether;
         vm.deal(caller, amount);
-        vm.prank(caller, caller);
+        vm.prank(caller);
         noBeneficiaryPayer.pay{value: amount}({
             projectId: PROJECT_ID,
             token: JBConstants.NATIVE_TOKEN,
@@ -377,7 +377,7 @@ contract JBProjectPayer_Unit is Test {
         });
 
         (,,, address recordedBeneficiary,,,) = terminal.payRecords(0);
-        assertEq(recordedBeneficiary, caller); // tx.origin
+        assertEq(recordedBeneficiary, caller); // msg.sender
     }
 
     //*********************************************************************//
