@@ -7,7 +7,8 @@ import {IJBProjectPayer} from "./interfaces/IJBProjectPayer.sol";
 import {IJBProjectPayerDeployer} from "./interfaces/IJBProjectPayerDeployer.sol";
 import {JBProjectPayer} from "./JBProjectPayer.sol";
 
-/// @notice Deploys `JBProjectPayer` EIP-1167 clones.
+/// @notice Factory that deploys `JBProjectPayer` EIP-1167 minimal proxy clones. Each clone is a standalone address
+/// that auto-forwards received ETH/ERC-20 tokens to a configured Juicebox project treasury.
 contract JBProjectPayerDeployer is IJBProjectPayerDeployer {
     //*********************************************************************//
     // --------------- public immutable stored properties ---------------- //

@@ -11,10 +11,11 @@ import {IJBTerminal} from "@bananapus/core-v6/src/interfaces/IJBTerminal.sol";
 import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
 import {IJBProjectPayer} from "./interfaces/IJBProjectPayer.sol";
 
-/// @notice Sends ETH or ERC20 tokens to a Juicebox project's treasury as it receives direct payments or has its
-/// functions called.
-/// @dev Inherit from this contract or borrow from its logic to forward ETH or ERC20 tokens to project treasuries from
-/// within other contracts.
+/// @notice A payment relay that forwards ETH or ERC-20 tokens to a Juicebox project's treasury. Can be used as a
+/// standalone address that auto-pays a project when it receives funds (via `receive()`), or called directly with
+/// `pay`/`addToBalanceOf` for explicit routing. Deployed as EIP-1167 clones via `JBProjectPayerDeployer`.
+/// @dev The owner can update default routing parameters (project ID, beneficiary, memo, metadata, pay-vs-addToBalance).
+/// Inherit from this contract to build custom forwarding logic on top of Juicebox payments.
 contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     using SafeERC20 for IERC20;
 

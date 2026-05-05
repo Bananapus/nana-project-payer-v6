@@ -4,8 +4,19 @@ pragma solidity ^0.8.0;
 import {IJBDirectory} from "@bananapus/core-v6/src/interfaces/IJBDirectory.sol";
 import {IJBProjectPayer} from "./IJBProjectPayer.sol";
 
-/// @notice Deploys `JBProjectPayer` EIP-1167 clones.
+/// @notice Factory that deploys `JBProjectPayer` EIP-1167 minimal proxy clones, each configured to forward funds to
+/// a specific Juicebox project.
 interface IJBProjectPayerDeployer {
+    /// @notice Emitted when a new project payer clone is deployed.
+    /// @param projectPayer The newly deployed project payer contract.
+    /// @param defaultProjectId The project that will receive payments.
+    /// @param defaultBeneficiary The address that will receive project tokens.
+    /// @param defaultMemo The memo forwarded with payments.
+    /// @param defaultMetadata The metadata forwarded with payments.
+    /// @param defaultAddToBalance Whether payments use `addToBalanceOf` instead of `pay`.
+    /// @param directory The directory used to look up project terminals.
+    /// @param owner The address that owns the project payer.
+    /// @param caller The address that deployed the project payer.
     event DeployProjectPayer(
         IJBProjectPayer indexed projectPayer,
         uint256 defaultProjectId,
