@@ -77,9 +77,9 @@ interface IJBProjectPayer is IERC165 {
         external;
 
     /// @notice Pay the specified project.
-    /// @param projectId The ID of the project being paid.
-    /// @param token The token being paid in. Use `JBConstants.NATIVE_TOKEN` for the native token.
-    /// @param amount The amount of tokens being paid. Ignored if the token is the native token.
+    /// @param projectId The ID of the project to pay.
+    /// @param token The token to pay with. Use `JBConstants.NATIVE_TOKEN` for the native token.
+    /// @param amount The amount of tokens to pay. Ignored if the token is the native token.
     /// @param beneficiary The address that will receive tokens from the payment.
     /// @param minReturnedTokens The minimum number of project tokens expected in return.
     /// @param memo A memo to pass along to the emitted event.
@@ -97,9 +97,9 @@ interface IJBProjectPayer is IERC165 {
         payable;
 
     /// @notice Add to the balance of the specified project.
-    /// @param projectId The ID of the project being paid.
-    /// @param token The token being paid in. Use `JBConstants.NATIVE_TOKEN` for the native token.
-    /// @param amount The amount of tokens being paid. Ignored if the token is the native token.
+    /// @param projectId The ID of the project to pay.
+    /// @param token The token to pay with. Use `JBConstants.NATIVE_TOKEN` for the native token.
+    /// @param amount The amount of tokens to pay. Ignored if the token is the native token.
     /// @param memo A memo to pass along to the emitted event.
     /// @param metadata Bytes to send along to the terminal.
     function addToBalanceOf(
