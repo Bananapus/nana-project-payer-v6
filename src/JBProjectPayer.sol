@@ -26,7 +26,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     /// @notice Thrown when `initialize` is called by an address that is not the deployer.
     error JBProjectPayer_AlreadyInitialized();
 
-    /// @notice Thrown when `msg.value` is non-zero but the token being paid is not the native token.
+    /// @notice Thrown when `msg.value` is non-zero but the token to pay with is not the native token.
     error JBProjectPayer_NoMsgValueAllowed();
 
     /// @notice Thrown when no terminal is found for the project and token.
@@ -181,9 +181,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     //*********************************************************************//
 
     /// @notice Pay the specified project.
-    /// @param projectId The ID of the project being paid.
-    /// @param token The token being paid in. Use `JBConstants.NATIVE_TOKEN` for the native token.
-    /// @param amount The amount of tokens being paid. Ignored if the token is the native token.
+    /// @param projectId The ID of the project to pay.
+    /// @param token The token to pay with. Use `JBConstants.NATIVE_TOKEN` for the native token.
+    /// @param amount The amount of tokens to pay. Ignored if the token is the native token.
     /// @param beneficiary The address that will receive tokens from the payment.
     /// @param minReturnedTokens The minimum number of project tokens expected in return.
     /// @param memo A memo to pass along to the emitted event.
@@ -231,9 +231,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     }
 
     /// @notice Add to the balance of the specified project.
-    /// @param projectId The ID of the project being paid.
-    /// @param token The token being paid in. Use `JBConstants.NATIVE_TOKEN` for the native token.
-    /// @param amount The amount of tokens being paid. Ignored if the token is the native token.
+    /// @param projectId The ID of the project to pay.
+    /// @param token The token to pay with. Use `JBConstants.NATIVE_TOKEN` for the native token.
+    /// @param amount The amount of tokens to pay. Ignored if the token is the native token.
     /// @param memo A memo to pass along to the emitted event.
     /// @param metadata Bytes to send along to the terminal.
     function addToBalanceOf(
@@ -282,9 +282,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     //*********************************************************************//
 
     /// @notice Pay the specified project.
-    /// @param projectId The ID of the project being paid.
-    /// @param token The token being paid in.
-    /// @param amount The amount of tokens being paid.
+    /// @param projectId The ID of the project to pay.
+    /// @param token The token to pay with.
+    /// @param amount The amount of tokens to pay.
     /// @param beneficiary The address that will receive tokens from the payment.
     /// @param minReturnedTokens The minimum number of project tokens expected in return.
     /// @param memo A memo to pass along to the emitted event.
@@ -329,9 +329,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     }
 
     /// @notice Add to the balance of the specified project.
-    /// @param projectId The ID of the project being paid.
-    /// @param token The token being paid in.
-    /// @param amount The amount of tokens being paid.
+    /// @param projectId The ID of the project to pay.
+    /// @param token The token to pay with.
+    /// @param amount The amount of tokens to pay.
     /// @param memo A memo to pass along to the emitted event.
     /// @param metadata Bytes to send along to the terminal.
     function _addToBalanceOf(
