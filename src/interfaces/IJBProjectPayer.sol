@@ -4,8 +4,16 @@ pragma solidity ^0.8.0;
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IJBDirectory} from "@bananapus/core-v6/src/interfaces/IJBDirectory.sol";
 
-/// @notice A contract that can receive ETH or ERC20 tokens and forward them to a Juicebox project treasury.
+/// @notice A payment relay that receives ETH or ERC-20 tokens and forwards them to a Juicebox project's treasury,
+/// either via `pay` (minting project tokens for a beneficiary) or `addToBalanceOf` (donating without tokens).
 interface IJBProjectPayer is IERC165 {
+    /// @notice Emitted when the default payment routing values are updated.
+    /// @param projectId The project that will receive payments.
+    /// @param beneficiary The address that will receive project tokens.
+    /// @param memo The memo forwarded with payments.
+    /// @param metadata The metadata forwarded with payments.
+    /// @param addToBalance Whether payments use `addToBalanceOf` instead of `pay`.
+    /// @param caller The address that updated the defaults.
     event SetDefaultValues(
         uint256 indexed projectId,
         address indexed beneficiary,
