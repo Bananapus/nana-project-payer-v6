@@ -8,11 +8,11 @@
 **Description**: If the project has no terminal registered for the given token, `_pay` and `_addToBalanceOf` revert with `JBProjectPayer_TerminalNotFound`. ETH sent via `receive()` will also revert.
 **Mitigation**: Ensure the project has a terminal set up for the expected token before deploying a project payer. Payments revert cleanly — no funds are lost.
 
-### R-2: tx.origin Beneficiary Fallback
+### R-2: msg.sender Beneficiary Fallback
 
 **Severity**: Low
-**Description**: When no beneficiary is configured (`defaultBeneficiary == address(0)`) and no beneficiary is provided in `pay()`, `tx.origin` is used. For smart contract wallets (multisigs, account abstraction), `tx.origin` may not be the intended recipient.
-**Mitigation**: Always set `defaultBeneficiary` when deploying a project payer. The owner can update this at any time.
+**Description**: When no beneficiary is configured (`defaultBeneficiary == address(0)`) and no beneficiary is provided in `pay()`, `msg.sender` is used. For smart contract wallets, relayers, and account abstraction flows, `msg.sender` may not be the intended token recipient.
+**Mitigation**: Set `defaultBeneficiary` when deploying a project payer, or pass an explicit beneficiary to `pay()`. The owner can update defaults at any time.
 
 ### R-3: Malicious Terminal via Directory
 

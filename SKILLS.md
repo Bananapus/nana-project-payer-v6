@@ -38,5 +38,5 @@ This repo gives Juicebox V6 projects payable deposit addresses. Anyone deploys a
 1. All fund routing goes through `DIRECTORY.primaryTerminalOf()` — never hardcode terminal addresses.
 2. The payer is stateless with respect to funds — it never holds balances across transactions.
 3. Fee-on-transfer tokens must be handled by measuring actual balance changes, not trusting the nominal amount.
-4. `tx.origin` is used as a last-resort beneficiary fallback. Always prefer setting `defaultBeneficiary`.
+4. `msg.sender` is used as a last-resort beneficiary fallback. Prefer setting `defaultBeneficiary` or passing an explicit beneficiary in relayed or contract-based flows.
 5. The `initialize` function is guarded by the deployer address, not by an `initialized` flag. This is safe because the deployer only calls it once per clone.

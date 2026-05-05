@@ -51,12 +51,6 @@ contract RecordingNativeTerminal {
     }
 }
 
-contract ForceEther {
-    constructor(address payable target) payable {
-        selfdestruct(target);
-    }
-}
-
 contract CodexNemesisForcedEthSweepTest is Test {
     uint256 internal constant PROJECT_ID = 1;
 
@@ -86,8 +80,8 @@ contract CodexNemesisForcedEthSweepTest is Test {
             owner: owner
         });
 
-        // Force-feed 1 ether into the payer via selfdestruct.
-        new ForceEther{value: 1 ether}(payable(address(payer)));
+        // Simulate force-fed ETH that bypasses receive().
+        vm.deal(address(payer), 1 ether);
         assertEq(address(payer).balance, 1 ether);
 
         // Send 1 wei via receive().
@@ -113,8 +107,8 @@ contract CodexNemesisForcedEthSweepTest is Test {
             owner: owner
         });
 
-        // Force-feed 2 ether into the payer via selfdestruct.
-        new ForceEther{value: 2 ether}(payable(address(payer)));
+        // Simulate force-fed ETH that bypasses receive().
+        vm.deal(address(payer), 2 ether);
         assertEq(address(payer).balance, 2 ether);
 
         // Send 1 wei via receive().
