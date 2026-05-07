@@ -246,7 +246,9 @@ contract JBProjectPayer_Edge is Test {
         JBProjectPayer impl = JBProjectPayer(payable(deployer.IMPLEMENTATION()));
 
         vm.prank(caller);
-        vm.expectRevert(JBProjectPayer.JBProjectPayer_AlreadyInitialized.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(JBProjectPayer.JBProjectPayer_AlreadyInitialized.selector, caller, address(deployer))
+        );
         impl.initialize({
             projectId: 1, beneficiary: payable(caller), memo: "", metadata: "", addToBalance: false, owner: caller
         });
