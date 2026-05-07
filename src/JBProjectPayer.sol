@@ -24,13 +24,19 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     //*********************************************************************//
 
     /// @notice Thrown when `initialize` is called by an address that is not the deployer.
-    error JBProjectPayer_AlreadyInitialized();
+    /// @param caller The address that attempted to initialize the clone.
+    /// @param deployer The deployer address that is allowed to initialize the clone.
+    error JBProjectPayer_AlreadyInitialized(address caller, address deployer);
 
     /// @notice Thrown when `msg.value` is non-zero but the token to pay with is not the native token.
-    error JBProjectPayer_NoMsgValueAllowed();
+    /// @param msgValue The native token amount sent with the call.
+    /// @param token The token that was being paid with.
+    error JBProjectPayer_NoMsgValueAllowed(uint256 msgValue, address token);
 
     /// @notice Thrown when no terminal is found for the project and token.
-    error JBProjectPayer_TerminalNotFound();
+    /// @param projectId The project ID whose primary terminal was requested.
+    /// @param token The token whose primary terminal was requested.
+    error JBProjectPayer_TerminalNotFound(uint256 projectId, address token);
 
     //*********************************************************************//
     // --------------- public immutable stored properties ---------------- //
@@ -125,12 +131,10 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         override
     {
         // Only the deployer can initialize clones.
-        if (msg.sender != DEPLOYER) revert JBProjectPayer_AlreadyInitialized();
+        if (msg.sender != DEPLOYER) revert JBProjectPayer_AlreadyInitialized({caller: msg.sender, deployer: DEPLOYER});
 
         // Set the default values. The deployer emits the initialized defaults in its DeployProjectPayer event.
-        // slither-disable-next-line events-maths
         defaultProjectId = projectId;
-        // slither-disable-next-line missing-zero-check
         defaultBeneficiary = beneficiary;
         defaultMemo = memo;
         defaultMetadata = metadata;
@@ -160,7 +164,6 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     {
         // Set the default values. A zero beneficiary intentionally falls back to msg.sender during pay routing.
         defaultProjectId = projectId;
-        // slither-disable-next-line missing-zero-check
         defaultBeneficiary = beneficiary;
         defaultMemo = memo;
         defaultMetadata = metadata;
@@ -204,7 +207,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     {
         // ETH shouldn't be sent if the token isn't the native token.
         if (token != JBConstants.NATIVE_TOKEN) {
-            if (msg.value > 0) revert JBProjectPayer_NoMsgValueAllowed();
+            if (msg.value > 0) revert JBProjectPayer_NoMsgValueAllowed({msgValue: msg.value, token: token});
 
             // Get a reference to the balance before receiving tokens.
             uint256 balanceBefore = IERC20(token).balanceOf(address(this));
@@ -250,7 +253,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
     {
         // ETH shouldn't be sent if the token isn't the native token.
         if (token != JBConstants.NATIVE_TOKEN) {
-            if (msg.value > 0) revert JBProjectPayer_NoMsgValueAllowed();
+            if (msg.value > 0) revert JBProjectPayer_NoMsgValueAllowed({msgValue: msg.value, token: token});
 
             // Get a reference to the balance before receiving tokens.
             uint256 balanceBefore = IERC20(token).balanceOf(address(this));
@@ -305,7 +308,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         IJBTerminal terminal = DIRECTORY.primaryTerminalOf(projectId, token);
 
         // There must be a terminal.
-        if (terminal == IJBTerminal(address(0))) revert JBProjectPayer_TerminalNotFound();
+        if (terminal == IJBTerminal(address(0))) {
+            revert JBProjectPayer_TerminalNotFound({projectId: projectId, token: token});
+        }
 
         // Approve the terminal to spend the tokens if not the native token.
         if (token != JBConstants.NATIVE_TOKEN) IERC20(token).forceApprove(address(terminal), amount);
@@ -314,7 +319,6 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         uint256 payableValue = token == JBConstants.NATIVE_TOKEN ? amount : 0;
 
         // Send funds to the terminal.
-        // slither-disable-next-line unused-return
         terminal.pay{value: payableValue}({
             projectId: projectId,
             token: token,
@@ -348,7 +352,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         IJBTerminal terminal = DIRECTORY.primaryTerminalOf(projectId, token);
 
         // There must be a terminal.
-        if (terminal == IJBTerminal(address(0))) revert JBProjectPayer_TerminalNotFound();
+        if (terminal == IJBTerminal(address(0))) {
+            revert JBProjectPayer_TerminalNotFound({projectId: projectId, token: token});
+        }
 
         // Approve the terminal to spend the tokens if not the native token.
         if (token != JBConstants.NATIVE_TOKEN) IERC20(token).forceApprove(address(terminal), amount);

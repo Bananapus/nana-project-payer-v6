@@ -189,6 +189,7 @@ contract JBProjectPayer_Edge is Test {
             vm.prank(owner);
             payer.setDefaultValues({
                 projectId: i,
+                // forge-lint: disable-next-line(unsafe-typecast)
                 beneficiary: payable(address(uint160(i))),
                 memo: "",
                 metadata: "",
@@ -196,6 +197,7 @@ contract JBProjectPayer_Edge is Test {
             });
 
             assertEq(payer.defaultProjectId(), i);
+            // forge-lint: disable-next-line(unsafe-typecast)
             assertEq(payer.defaultBeneficiary(), address(uint160(i)));
             assertEq(payer.defaultAddToBalance(), i % 2 == 0);
         }
@@ -244,7 +246,9 @@ contract JBProjectPayer_Edge is Test {
         JBProjectPayer impl = JBProjectPayer(payable(deployer.IMPLEMENTATION()));
 
         vm.prank(caller);
-        vm.expectRevert(JBProjectPayer.JBProjectPayer_AlreadyInitialized.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(JBProjectPayer.JBProjectPayer_AlreadyInitialized.selector, caller, address(deployer))
+        );
         impl.initialize({
             projectId: 1, beneficiary: payable(caller), memo: "", metadata: "", addToBalance: false, owner: caller
         });

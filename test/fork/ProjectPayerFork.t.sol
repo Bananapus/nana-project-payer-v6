@@ -187,7 +187,11 @@ contract ProjectPayerFork is Test {
 
         vm.deal(caller, 1 ether);
         vm.prank(caller, caller);
-        vm.expectRevert(JBProjectPayer.JBProjectPayer_TerminalNotFound.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                JBProjectPayer.JBProjectPayer_TerminalNotFound.selector, unregisteredProject, JBConstants.NATIVE_TOKEN
+            )
+        );
         payer.pay{value: 1 ether}({
             projectId: unregisteredProject,
             token: JBConstants.NATIVE_TOKEN,
