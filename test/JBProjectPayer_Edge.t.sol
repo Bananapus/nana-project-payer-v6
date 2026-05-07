@@ -189,6 +189,7 @@ contract JBProjectPayer_Edge is Test {
             vm.prank(owner);
             payer.setDefaultValues({
                 projectId: i,
+                // forge-lint: disable-next-line(unsafe-typecast)
                 beneficiary: payable(address(uint160(i))),
                 memo: "",
                 metadata: "",
@@ -196,6 +197,7 @@ contract JBProjectPayer_Edge is Test {
             });
 
             assertEq(payer.defaultProjectId(), i);
+            // forge-lint: disable-next-line(unsafe-typecast)
             assertEq(payer.defaultBeneficiary(), address(uint160(i)));
             assertEq(payer.defaultAddToBalance(), i % 2 == 0);
         }

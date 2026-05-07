@@ -9,7 +9,7 @@ Deploys payable addresses that automatically route received ETH or ERC20 tokens 
 | [ADMINISTRATION.md](ADMINISTRATION.md) | Control model and privileged surfaces |
 | [SKILLS.md](SKILLS.md) | AI agent guidance |
 | [RISKS.md](RISKS.md) | Security and operational risks |
-| [AUDIT_INSTRUCTIONS.md](AUDIT_INSTRUCTIONS.md) | Practical audit scope and commands |
+| [REVIEW_GUIDE.md](REVIEW_GUIDE.md) | Practical review scope and commands |
 
 ## Overview
 

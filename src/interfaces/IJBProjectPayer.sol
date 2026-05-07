@@ -112,5 +112,6 @@ interface IJBProjectPayer is IERC165 {
         external
         payable;
 
+    /// @notice Accepts native tokens sent directly to the payer.
     receive() external payable;
 }

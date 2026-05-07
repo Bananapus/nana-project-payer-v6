@@ -51,7 +51,7 @@ contract RecordingNativeTerminal {
     }
 }
 
-contract CodexNemesisForcedEthSweepTest is Test {
+contract RegressionForcedEthSweepTest is Test {
     uint256 internal constant PROJECT_ID = 1;
 
     MockForcedEthDirectory internal directory;

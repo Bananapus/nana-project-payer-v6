@@ -8,7 +8,7 @@ import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
 import {JBProjectPayerDeployer} from "../../src/JBProjectPayerDeployer.sol";
 import {IJBProjectPayer} from "../../src/interfaces/IJBProjectPayer.sol";
 
-contract MockAuditDirectory {
+contract MockReviewDirectory {
     mapping(uint256 => mapping(address => address)) internal _primaryTerminalOf;
 
     function primaryTerminalOf(uint256 projectId, address token) external view returns (IJBTerminal) {
@@ -64,10 +64,10 @@ contract TreasuryForwarder {
     }
 }
 
-contract CodexNemesisTxOriginBeneficiaryMisrouteTest is Test {
+contract RegressionTxOriginBeneficiaryMisrouteTest is Test {
     uint256 internal constant PROJECT_ID = 1;
 
-    MockAuditDirectory internal directory;
+    MockReviewDirectory internal directory;
     RecordingTerminal internal terminal;
     JBProjectPayerDeployer internal deployer;
     IJBProjectPayer internal payer;
@@ -77,7 +77,7 @@ contract CodexNemesisTxOriginBeneficiaryMisrouteTest is Test {
     address internal relayer = makeAddr("relayer");
 
     function setUp() public {
-        directory = new MockAuditDirectory();
+        directory = new MockReviewDirectory();
         terminal = new RecordingTerminal();
         treasury = new TreasuryForwarder();
 
@@ -94,7 +94,7 @@ contract CodexNemesisTxOriginBeneficiaryMisrouteTest is Test {
         });
     }
 
-    /// @notice After L-18 fix: receive() uses msg.sender, so the funding contract gets tokens, not tx.origin.
+    /// @notice After fix: receive() uses msg.sender, so the funding contract gets tokens, not tx.origin.
     function test_ReceivePath_MintsToFundingContractNotTxOrigin() public {
         vm.deal(address(treasury), 1 ether);
 
@@ -107,7 +107,7 @@ contract CodexNemesisTxOriginBeneficiaryMisrouteTest is Test {
         assertTrue(terminal.lastBeneficiary() != relayer);
     }
 
-    /// @notice After L-18 fix: pay() uses msg.sender, so the funding contract gets tokens, not tx.origin.
+    /// @notice After fix: pay() uses msg.sender, so the funding contract gets tokens, not tx.origin.
     function test_PayPath_MintsToFundingContractNotTxOrigin() public {
         vm.deal(address(treasury), 2 ether);
 
