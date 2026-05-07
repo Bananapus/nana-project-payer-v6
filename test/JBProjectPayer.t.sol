@@ -160,7 +160,9 @@ contract JBProjectPayer_Unit is Test {
     function test_RevertWhen_Initialize_NotDeployer() public {
         // Try to call initialize directly on the payer (not from deployer).
         vm.prank(caller);
-        vm.expectRevert(JBProjectPayer.JBProjectPayer_AlreadyInitialized.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(JBProjectPayer.JBProjectPayer_AlreadyInitialized.selector, caller, address(deployer))
+        );
         payer.initialize({
             projectId: 2, beneficiary: payable(caller), memo: "", metadata: "", addToBalance: false, owner: caller
         });
@@ -476,7 +478,11 @@ contract JBProjectPayer_Unit is Test {
 
         vm.deal(caller, 1 ether);
         vm.prank(caller);
-        vm.expectRevert(JBProjectPayer.JBProjectPayer_TerminalNotFound.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                JBProjectPayer.JBProjectPayer_TerminalNotFound.selector, unregisteredProject, JBConstants.NATIVE_TOKEN
+            )
+        );
         payer.pay{value: 1 ether}({
             projectId: unregisteredProject,
             token: JBConstants.NATIVE_TOKEN,
@@ -491,7 +497,9 @@ contract JBProjectPayer_Unit is Test {
     function test_RevertWhen_Pay_ERC20WithMsgValue() public {
         vm.deal(caller, 1 ether);
         vm.prank(caller);
-        vm.expectRevert(JBProjectPayer.JBProjectPayer_NoMsgValueAllowed.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(JBProjectPayer.JBProjectPayer_NoMsgValueAllowed.selector, 1 ether, address(token))
+        );
         payer.pay{value: 1 ether}({
             projectId: PROJECT_ID,
             token: address(token),
@@ -508,7 +516,11 @@ contract JBProjectPayer_Unit is Test {
 
         vm.deal(caller, 1 ether);
         vm.prank(caller);
-        vm.expectRevert(JBProjectPayer.JBProjectPayer_TerminalNotFound.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                JBProjectPayer.JBProjectPayer_TerminalNotFound.selector, unregisteredProject, JBConstants.NATIVE_TOKEN
+            )
+        );
         payer.addToBalanceOf{value: 1 ether}({
             projectId: unregisteredProject, token: JBConstants.NATIVE_TOKEN, amount: 0, memo: "", metadata: ""
         });
@@ -517,7 +529,9 @@ contract JBProjectPayer_Unit is Test {
     function test_RevertWhen_AddToBalance_ERC20WithMsgValue() public {
         vm.deal(caller, 1 ether);
         vm.prank(caller);
-        vm.expectRevert(JBProjectPayer.JBProjectPayer_NoMsgValueAllowed.selector);
+        vm.expectRevert(
+            abi.encodeWithSelector(JBProjectPayer.JBProjectPayer_NoMsgValueAllowed.selector, 1 ether, address(token))
+        );
         payer.addToBalanceOf{value: 1 ether}({
             projectId: PROJECT_ID, token: address(token), amount: 100e18, memo: "", metadata: ""
         });
