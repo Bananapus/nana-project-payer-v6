@@ -1,4 +1,4 @@
-# Review Guide
+# Audit Instructions
 
 ## Scope
 
@@ -43,8 +43,8 @@ Run fork tests only when `RPC_ETHEREUM_MAINNET` is configured:
 forge test --deny notes --match-path "test/fork/*.sol"
 ```
 
-Run Static review after the build-info command:
+Run Slither after the build-info command:
 
 ```bash
-static review . --config-file static-review.config.json --ignore-compile
+slither . --config-file slither-ci.config.json --ignore-compile
 ```
