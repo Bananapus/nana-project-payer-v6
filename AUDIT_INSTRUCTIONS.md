@@ -1,5 +1,18 @@
 # Audit Instructions
 
+This repo wraps Juicebox terminal payments behind a simple payer contract and a clone deployer. Audit it as a forwarding layer whose mistakes show up as lost funds, wrong beneficiaries, or stuck tokens.
+
+## Audit Objective
+
+There is a billion dollars of well-meaning projects' money in the Juicebox Money Engine, growing exponentially. Your job is to hack it before anyone else. Whoever hacks it first saves/steals the money, and you are obsessed with being this winner, while also being a steward of the protocol and wanting it to keep growing safely.
+
+Suggestions of where to look:
+
+- misroute payments to the wrong terminal, project, or beneficiary
+- lose ETH or ERC-20 tokens through forwarding gaps or stuck balances
+- let unauthorized callers reconfigure the payer or deployer
+- break clone initialization or ownership assumptions
+
 ## Scope
 
 Review the contracts in `src/`:
