@@ -29,8 +29,9 @@ Think of each `JBProjectPayer` clone as a **deposit address** for a Juicebox pro
 ## Read These Files First
 
 1. `src/interfaces/IJBProjectPayer.sol` — The interface, all public functions
-2. `src/JBProjectPayer.sol` — The implementation
-3. `src/JBProjectPayerDeployer.sol` — The factory
+2. `src/interfaces/IJBPayerTracker.sol` — Original-payer exposure for downstream router terminals
+3. `src/JBProjectPayer.sol` — The implementation
+4. `src/JBProjectPayerDeployer.sol` — The factory
 
 ## High-Signal Tests
 
@@ -69,6 +70,7 @@ forge script script/Deploy.s.sol --broadcast --rpc-url <RPC_URL>
 │   ├── JBProjectPayerDeployer.sol      # Clone factory
 │   └── interfaces/
 │       ├── IJBProjectPayer.sol         # Payer interface
+│       ├── IJBPayerTracker.sol         # Original-payer exposure for router terminals
 │       └── IJBProjectPayerDeployer.sol # Factory interface
 ├── test/
 │   ├── JBProjectPayer.t.sol            # Unit tests
