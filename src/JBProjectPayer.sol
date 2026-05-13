@@ -9,6 +9,7 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IJBDirectory} from "@bananapus/core-v6/src/interfaces/IJBDirectory.sol";
 import {IJBTerminal} from "@bananapus/core-v6/src/interfaces/IJBTerminal.sol";
 import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
+import {IJBPayerTracker} from "./interfaces/IJBPayerTracker.sol";
 import {IJBProjectPayer} from "./interfaces/IJBProjectPayer.sol";
 
 /// @notice A payment relay that forwards ETH or ERC-20 tokens to a Juicebox project's treasury. Can be used as a
@@ -16,7 +17,9 @@ import {IJBProjectPayer} from "./interfaces/IJBProjectPayer.sol";
 /// `pay`/`addToBalanceOf` for explicit routing. Deployed as EIP-1167 clones via `JBProjectPayerDeployer`.
 /// @dev The owner can update default routing parameters (project ID, beneficiary, memo, metadata, pay-vs-addToBalance).
 /// Inherit from this contract to build custom forwarding logic on top of Juicebox payments.
-contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
+/// Implements `IJBPayerTracker` so router-style terminals can refund partial-fill leftovers and resolve credit
+/// cash-outs against the original payer instead of this intermediary contract.
+contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
     using SafeERC20 for IERC20;
 
     //*********************************************************************//
@@ -66,6 +69,16 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
 
     /// @notice Whether received payments should call `addToBalanceOf` instead of `pay` on the project's terminal.
     bool public override defaultAddToBalance;
+
+    //*********************************************************************//
+    // -------------------- transient stored properties ------------------ //
+    //*********************************************************************//
+
+    /// @inheritdoc IJBPayerTracker
+    /// @dev Set to `msg.sender` for the duration of each forwarded `pay`/`addToBalanceOf` call so downstream
+    /// router-style terminals can resolve refunds and credit cash-outs against the true payer. Always cleared
+    /// back to the prior value after the terminal call returns.
+    address public transient override originalPayer;
 
     //*********************************************************************//
     // -------------------------- constructor ---------------------------- //
@@ -277,7 +290,8 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
 
     /// @dev See {IERC165-supportsInterface}.
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
-        return interfaceId == type(IJBProjectPayer).interfaceId || super.supportsInterface(interfaceId);
+        return interfaceId == type(IJBProjectPayer).interfaceId || interfaceId == type(IJBPayerTracker).interfaceId
+            || super.supportsInterface(interfaceId);
     }
 
     //*********************************************************************//
@@ -318,6 +332,13 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         // If the token is the native token, send it in msg.value.
         uint256 payableValue = token == JBConstants.NATIVE_TOKEN ? amount : 0;
 
+        // Save any previous payer so nested calls (via pay hooks) restore correctly on return.
+        address previousPayer = originalPayer;
+
+        // Expose the original payer to downstream router-style terminals so partial-fill refunds and credit
+        // cash-outs reach the true caller instead of this intermediary contract.
+        originalPayer = msg.sender;
+
         // Send funds to the terminal.
         terminal.pay{value: payableValue}({
             projectId: projectId,
@@ -330,6 +351,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
             memo: memo,
             metadata: metadata
         });
+
+        // Restore the previous payer.
+        originalPayer = previousPayer;
     }
 
     /// @notice Add to the balance of the specified project.
@@ -362,6 +386,13 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
         // If the token is the native token, send it in msg.value.
         uint256 payableValue = token == JBConstants.NATIVE_TOKEN ? amount : 0;
 
+        // Save any previous payer so nested calls (via pay hooks) restore correctly on return.
+        address previousPayer = originalPayer;
+
+        // Expose the original payer to downstream router-style terminals so partial-fill refunds and credit
+        // cash-outs reach the true caller instead of this intermediary contract.
+        originalPayer = msg.sender;
+
         // Add to the project's balance without minting tokens.
         terminal.addToBalanceOf{value: payableValue}({
             projectId: projectId,
@@ -371,5 +402,8 @@ contract JBProjectPayer is Ownable, ERC165, IJBProjectPayer {
             memo: memo,
             metadata: metadata
         });
+
+        // Restore the previous payer.
+        originalPayer = previousPayer;
     }
 }
