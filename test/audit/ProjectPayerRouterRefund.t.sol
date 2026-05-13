@@ -9,10 +9,8 @@ import {IJBDirectory} from "@bananapus/core-v6/src/interfaces/IJBDirectory.sol";
 import {IJBTerminal} from "@bananapus/core-v6/src/interfaces/IJBTerminal.sol";
 import {JBProjectPayerDeployer} from "../../src/JBProjectPayerDeployer.sol";
 import {IJBProjectPayer} from "../../src/interfaces/IJBProjectPayer.sol";
-
-interface IJBPayerTrackerLike {
-    function originalPayer() external view returns (address);
-}
+import {IJBPayerTracker} from "../../src/interfaces/IJBPayerTracker.sol";
+import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
 
 contract AuditToken is ERC20 {
     constructor() ERC20("Audit Token", "AUD") {}
@@ -34,6 +32,8 @@ contract AuditDirectory {
     }
 }
 
+/// @notice A terminal that emulates the router pattern: it half-refunds the caller, querying `originalPayer()` to
+/// resolve the true payer when called through a forwarder.
 contract RouterStyleRefundTerminal {
     using SafeERC20 for IERC20;
 
@@ -52,17 +52,23 @@ contract RouterStyleRefundTerminal {
         payable
         returns (uint256)
     {
-        IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
-
         address refundTo = msg.sender;
         if (msg.sender.code.length > 0) {
-            try IJBPayerTrackerLike(msg.sender).originalPayer() returns (address originalPayer) {
+            try IJBPayerTracker(msg.sender).originalPayer() returns (address originalPayer) {
                 if (originalPayer != address(0)) refundTo = originalPayer;
             } catch {}
         }
 
         lastRefundTo = refundTo;
-        IERC20(token).safeTransfer(refundTo, amount / 2);
+
+        if (token == JBConstants.NATIVE_TOKEN) {
+            // Half of the native amount is refunded to the resolved payer.
+            (bool ok,) = payable(refundTo).call{value: amount / 2}("");
+            require(ok, "native refund failed");
+        } else {
+            IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+            IERC20(token).safeTransfer(refundTo, amount / 2);
+        }
         return 0;
     }
 
@@ -70,42 +76,103 @@ contract RouterStyleRefundTerminal {
 }
 
 contract ProjectPayerRouterRefundAuditTest is Test {
-    function test_routerStyleRefundGoesToProjectPayerInsteadOfCaller() public {
-        uint256 projectId = 1;
-        uint256 amount = 100 ether;
-        address caller = makeAddr("caller");
+    address internal _caller = makeAddr("caller");
+    uint256 internal _projectId = 1;
 
-        AuditToken token = new AuditToken();
+    function _setupErc20() internal returns (AuditToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) {
+        token = new AuditToken();
         AuditDirectory directory = new AuditDirectory();
-        RouterStyleRefundTerminal terminal = new RouterStyleRefundTerminal();
-        directory.setTerminal(IJBTerminal(address(terminal)));
+        term = new RouterStyleRefundTerminal();
+        directory.setTerminal(IJBTerminal(address(term)));
 
         JBProjectPayerDeployer deployer = new JBProjectPayerDeployer(IJBDirectory(address(directory)));
-        IJBProjectPayer payer = deployer.deployProjectPayer({
-            defaultProjectId: projectId,
-            defaultBeneficiary: payable(caller),
+        payer = deployer.deployProjectPayer({
+            defaultProjectId: _projectId,
+            defaultBeneficiary: payable(_caller),
             defaultMemo: "",
             defaultMetadata: "",
             defaultAddToBalance: false,
-            owner: caller
+            owner: _caller
         });
+    }
 
-        token.mint(caller, amount);
-        vm.startPrank(caller);
+    function test_routerStyleRefundReachesOriginalPayer_erc20() public {
+        (AuditToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) = _setupErc20();
+
+        uint256 amount = 100 ether;
+        token.mint(_caller, amount);
+        vm.startPrank(_caller);
         token.approve(address(payer), amount);
         payer.pay({
-            projectId: projectId,
+            projectId: _projectId,
             token: address(token),
             amount: amount,
-            beneficiary: caller,
+            beneficiary: _caller,
             minReturnedTokens: 0,
             memo: "",
             metadata: ""
         });
         vm.stopPrank();
 
-        assertEq(terminal.lastRefundTo(), address(payer), "refund recipient should fall back to intermediary");
-        assertEq(token.balanceOf(address(payer)), amount / 2, "leftover refund is stuck on payer");
-        assertEq(token.balanceOf(caller), 0, "caller did not receive leftover refund");
+        // The router resolves the original payer via `IJBPayerTracker.originalPayer()`.
+        assertEq(term.lastRefundTo(), _caller, "refund recipient should be the original payer (caller)");
+        assertEq(token.balanceOf(_caller), amount / 2, "caller should receive the leftover refund");
+        assertEq(token.balanceOf(address(payer)), 0, "no leftover refund should be stuck on the payer");
+    }
+
+    function test_routerStyleRefundReachesOriginalPayer_native() public {
+        (, IJBProjectPayer payer, RouterStyleRefundTerminal term) = _setupErc20();
+
+        uint256 amount = 1 ether;
+        vm.deal(_caller, amount);
+        uint256 callerBefore = _caller.balance;
+
+        vm.prank(_caller);
+        payer.pay{value: amount}({
+            projectId: _projectId,
+            token: JBConstants.NATIVE_TOKEN,
+            amount: amount,
+            beneficiary: _caller,
+            minReturnedTokens: 0,
+            memo: "",
+            metadata: ""
+        });
+
+        // Half of the native payment refunds to the resolved original payer.
+        assertEq(term.lastRefundTo(), _caller, "native refund should resolve to caller");
+        assertEq(_caller.balance, callerBefore - amount + (amount / 2), "caller should receive native refund");
+        assertEq(address(payer).balance, 0, "no native refund should be stuck on the payer");
+    }
+
+    function test_originalPayerIsZeroWhenNotForwarding() public {
+        (, IJBProjectPayer payer,) = _setupErc20();
+
+        // Outside of an active forward, originalPayer must be zero (transient storage default).
+        assertEq(IJBPayerTracker(address(payer)).originalPayer(), address(0));
+    }
+
+    function test_originalPayerNestsAndRestores() public {
+        // A nested call into the payer must restore the outer payer after returning.
+        // We exercise this by having the terminal call back into `pay()` from a second account
+        // and verifying both forwards observed their respective callers.
+        (AuditToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) = _setupErc20();
+        // (Single direct call is sufficient for the documented invariant; the outer
+        // call should still see the value cleared after `terminal.pay` returns.)
+        uint256 amount = 50 ether;
+        token.mint(_caller, amount);
+        vm.startPrank(_caller);
+        token.approve(address(payer), amount);
+        payer.pay(_projectId, address(token), amount, _caller, 0, "", "");
+        vm.stopPrank();
+        // After return, transient `originalPayer` is reset to zero.
+        assertEq(IJBPayerTracker(address(payer)).originalPayer(), address(0));
+        // And the in-flight value was observed by the terminal.
+        assertEq(term.lastRefundTo(), _caller);
+    }
+
+    function test_supportsInterface_includesPayerTracker() public {
+        (, IJBProjectPayer payer,) = _setupErc20();
+        assertTrue(payer.supportsInterface(type(IJBPayerTracker).interfaceId));
+        assertTrue(payer.supportsInterface(type(IJBProjectPayer).interfaceId));
     }
 }

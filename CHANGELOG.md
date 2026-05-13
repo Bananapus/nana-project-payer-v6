@@ -5,11 +5,35 @@
 This repo was not part of the deployed v5 ecosystem that the top-level changelog measures, so it is excluded from the
 ecosystem delta.
 
+## In-v6 changes
+
+### `0.0.10` — `JBProjectPayer` exposes `IJBPayerTracker`
+
+`JBProjectPayer` now implements `IJBPayerTracker` so router-style terminals (e.g.
+`JBRouterTerminal._resolveOriginalPayer`) can resolve partial-fill ERC-20 refunds and credit
+cash-outs to the **original caller** instead of the forwarding payer contract. Before this
+change, downstream router terminals fell back to `msg.sender == JBProjectPayer` as the refund
+target, and there is no sweep path on the payer — funds permanently stuck.
+
+- New interface: `src/interfaces/IJBPayerTracker.sol` (single view, `originalPayer()`).
+- New transient slot: `JBProjectPayer.originalPayer` set to `msg.sender` for the duration of
+  each `_pay` / `_addToBalanceOf` forward, with save/restore so nested pay-hook reentry
+  restores the outer payer.
+- `JBProjectPayer.supportsInterface` now reports `type(IJBPayerTracker).interfaceId` in
+  addition to `IJBProjectPayer` and `IERC165`.
+
+Indexer impact: none — view-only addition.
+
+Integrator impact: contracts that previously expected stuck ERC-20 leftovers on a project
+payer after a router-routed partial-fill cash-out will no longer see them; the leftover is
+returned to the original payer EOA or contract that called `pay` / `addToBalanceOf`.
+
 ## Current v6 Surface
 
 - `JBProjectPayer`
 - `JBProjectPayerDeployer`
 - `IJBProjectPayer`
+- `IJBPayerTracker`
 - `IJBProjectPayerDeployer`
 
 ## Summary

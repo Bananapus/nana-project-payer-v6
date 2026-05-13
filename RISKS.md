@@ -32,6 +32,12 @@
 **Description**: ERC20 tokens sent directly to the payer contract (not via `pay()` or `addToBalanceOf()`) cannot be recovered. There is no sweep function.
 **Mitigation**: Document this limitation. The payer is designed for programmatic use, not as a general-purpose wallet.
 
+### R-6: Original-Payer Transient Exposure
+
+**Severity**: Low
+**Description**: `JBProjectPayer` implements `IJBPayerTracker` and sets a transient `originalPayer = msg.sender` for the duration of each `_pay` / `_addToBalanceOf` forward. Downstream router-style terminals read this slot to resolve partial-fill refunds and credit cash-outs to the original caller instead of the payer contract. A misbehaving subclass that writes `originalPayer` without restoring the prior value could leak payer identity into unrelated nested calls.
+**Mitigation**: Subclasses must use the save / set / restore pattern in `_pay` and `_addToBalanceOf` (the base implementation does this). The transient slot resets to zero at the end of each transaction, so the worst case is a single call frame seeing the wrong payer.
+
 ## Admin Risks
 
 ### A-1: Owner Changes Defaults
