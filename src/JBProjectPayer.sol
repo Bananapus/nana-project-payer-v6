@@ -336,8 +336,10 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
         address previousPayer = originalPayer;
 
         // Expose the original payer to downstream router-style terminals so partial-fill refunds and credit
-        // cash-outs reach the true caller instead of this intermediary contract.
-        originalPayer = msg.sender;
+        // cash-outs reach the true caller instead of this intermediary contract. When the immediate caller
+        // is itself a forwarding tracker, propagate its upstream payer so a multi-hop chain doesn't strand
+        // refunds at the intermediary.
+        originalPayer = _originalPayerOrSender();
 
         // Send funds to the terminal.
         terminal.pay{value: payableValue}({
@@ -390,8 +392,10 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
         address previousPayer = originalPayer;
 
         // Expose the original payer to downstream router-style terminals so partial-fill refunds and credit
-        // cash-outs reach the true caller instead of this intermediary contract.
-        originalPayer = msg.sender;
+        // cash-outs reach the true caller instead of this intermediary contract. When the immediate caller
+        // is itself a forwarding tracker, propagate its upstream payer so a multi-hop chain doesn't strand
+        // refunds at the intermediary.
+        originalPayer = _originalPayerOrSender();
 
         // Add to the project's balance without minting tokens.
         terminal.addToBalanceOf{value: payableValue}({
@@ -405,5 +409,23 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
 
         // Restore the previous payer.
         originalPayer = previousPayer;
+    }
+
+    //*********************************************************************//
+    // -------------------------- internal views ------------------------- //
+    //*********************************************************************//
+
+    /// @notice Returns the original payer to record in transient storage. If `msg.sender` is a
+    /// contract that exposes `IJBPayerTracker.originalPayer()` and that getter returns a non-zero
+    /// value, the upstream payer is propagated so a chain (upstream tracker -> this payer ->
+    /// terminal) refunds the true originator instead of the intermediary contract. Otherwise the
+    /// direct caller is recorded — the common direct-call case.
+    function _originalPayerOrSender() internal view returns (address) {
+        if (msg.sender.code.length == 0) return msg.sender;
+        (bool ok, bytes memory data) =
+            msg.sender.staticcall(abi.encodeWithSelector(IJBPayerTracker.originalPayer.selector));
+        if (!ok || data.length < 32) return msg.sender;
+        address upstream = abi.decode(data, (address));
+        return upstream == address(0) ? msg.sender : upstream;
     }
 }
