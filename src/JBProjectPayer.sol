@@ -420,11 +420,23 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
     /// value, the upstream payer is propagated so a chain (upstream tracker -> this payer ->
     /// terminal) refunds the true originator instead of the intermediary contract. Otherwise the
     /// direct caller is recorded — the common direct-call case.
-    function _originalPayerOrSender() internal view returns (address) {
+    /// @return originalPayerOrSender The upstream payer if `msg.sender` is a forwarding tracker
+    /// that returns a non-zero address; otherwise `msg.sender`.
+    function _originalPayerOrSender() internal view returns (address originalPayerOrSender) {
+        // EOAs and contracts without code can't implement IJBPayerTracker — record them directly.
         if (msg.sender.code.length == 0) return msg.sender;
+
+        // Probe the caller for IJBPayerTracker.originalPayer() via staticcall so a reverting or
+        // non-conformant caller does not bubble up — fall back to the direct caller on failure.
         (bool ok, bytes memory data) =
             msg.sender.staticcall(abi.encodeWithSelector(IJBPayerTracker.originalPayer.selector));
+
+        // Caller doesn't implement the interface (revert) or returned a truncated payload — treat
+        // it as a direct payment from the caller itself.
         if (!ok || data.length < 32) return msg.sender;
+
+        // Decode the upstream payer the caller advertised. A zero value means "no upstream tracked",
+        // which only happens when the caller is itself receiving a direct call — record the caller.
         address upstream = abi.decode(data, (address));
         return upstream == address(0) ? msg.sender : upstream;
     }
