@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.12 — Bump nana-core-v6 to ^0.0.53
+
+- `@bananapus/core-v6`: `^0.0.48 → ^0.0.53` ([PR #145](https://github.com/Bananapus/nana-core-v6/pull/145)).
+- All `JBRulesetMetadata` test literals patched to include `pauseCrossProjectFeeFreeInflows: false`.
+
 ## Scope
 
 This repo was not part of the deployed v5 ecosystem that the top-level changelog measures, so it is excluded from the
