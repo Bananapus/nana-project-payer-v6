@@ -226,7 +226,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
             uint256 balanceBefore = IERC20(token).balanceOf(address(this));
 
             // Transfer tokens to this contract from the msg sender.
-            IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+            IERC20(token).safeTransferFrom({from: msg.sender, to: address(this), value: amount});
 
             // The amount should reflect the change in balance.
             amount = IERC20(token).balanceOf(address(this)) - balanceBefore;
@@ -272,7 +272,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
             uint256 balanceBefore = IERC20(token).balanceOf(address(this));
 
             // Transfer tokens to this contract from the msg sender.
-            IERC20(token).safeTransferFrom(msg.sender, address(this), amount);
+            IERC20(token).safeTransferFrom({from: msg.sender, to: address(this), value: amount});
 
             // The amount should reflect the change in balance.
             amount = IERC20(token).balanceOf(address(this)) - balanceBefore;
@@ -319,7 +319,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
         virtual
     {
         // Find the terminal for the specified project.
-        IJBTerminal terminal = DIRECTORY.primaryTerminalOf(projectId, token);
+        IJBTerminal terminal = DIRECTORY.primaryTerminalOf({projectId: projectId, token: token});
 
         // There must be a terminal.
         if (terminal == IJBTerminal(address(0))) {
@@ -327,7 +327,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
         }
 
         // Approve the terminal to spend the tokens if not the native token.
-        if (token != JBConstants.NATIVE_TOKEN) IERC20(token).forceApprove(address(terminal), amount);
+        if (token != JBConstants.NATIVE_TOKEN) IERC20(token).forceApprove({spender: address(terminal), value: amount});
 
         // If the token is the native token, send it in msg.value.
         uint256 payableValue = token == JBConstants.NATIVE_TOKEN ? amount : 0;
@@ -375,7 +375,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
         virtual
     {
         // Find the terminal for the specified project.
-        IJBTerminal terminal = DIRECTORY.primaryTerminalOf(projectId, token);
+        IJBTerminal terminal = DIRECTORY.primaryTerminalOf({projectId: projectId, token: token});
 
         // There must be a terminal.
         if (terminal == IJBTerminal(address(0))) {
@@ -383,7 +383,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
         }
 
         // Approve the terminal to spend the tokens if not the native token.
-        if (token != JBConstants.NATIVE_TOKEN) IERC20(token).forceApprove(address(terminal), amount);
+        if (token != JBConstants.NATIVE_TOKEN) IERC20(token).forceApprove({spender: address(terminal), value: amount});
 
         // If the token is the native token, send it in msg.value.
         uint256 payableValue = token == JBConstants.NATIVE_TOKEN ? amount : 0;
