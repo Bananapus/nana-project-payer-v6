@@ -23,8 +23,8 @@
 ### R-4: ERC20 Residual Allowance
 
 **Severity**: Low
-**Description**: After `forceApprove`, if the terminal does not pull the full approved amount (e.g., terminal reverts after approval), the terminal retains an allowance on the payer's tokens.
-**Mitigation**: `forceApprove` resets the allowance each time, so stale allowances from previous calls don't accumulate. The terminal is already trusted to process funds.
+**Description**: ERC-20 forwarding temporarily approves the selected terminal so it can pull funds during `pay` or `addToBalanceOf`. A terminal that returns after pulling less than the approved amount would otherwise leave a live allowance against any tokens still held by the payer.
+**Mitigation**: The payer clears the terminal's allowance after successful `pay` and `addToBalanceOf` calls. If the terminal reverts, the whole transaction reverts, including the temporary approval. Direct ERC-20 transfers to the payer are still not recoverable, as covered by R-5.
 
 ### R-5: Stuck Tokens
 
