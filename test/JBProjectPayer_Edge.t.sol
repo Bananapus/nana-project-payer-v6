@@ -3,6 +3,7 @@ pragma solidity 0.8.28;
 
 import {Test} from "forge-std/Test.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IJBDirectory} from "@bananapus/core-v6/src/interfaces/IJBDirectory.sol";
 import {IJBTerminal} from "@bananapus/core-v6/src/interfaces/IJBTerminal.sol";
 import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
@@ -83,6 +84,10 @@ contract MockJBTerminalEdge {
     function addToBalanceOf(uint256, address, uint256 amount, bool, string calldata, bytes calldata) external payable {
         if (shouldRevert) revert("MockTerminal: revert");
         lastAddToBalanceAmount = amount;
+    }
+
+    function drain(IERC20 token, address from, address to, uint256 amount) external {
+        token.transferFrom(from, to, amount);
     }
 }
 
@@ -330,8 +335,9 @@ contract JBProjectPayer_Edge is Test {
     // ---------------------- ERC20 approval cleanup ---------------------- //
     //*********************************************************************//
 
-    function test_Pay_ERC20_ApprovesTerminal() public {
+    function test_Pay_ERC20_ClearsTerminalAllowanceAfterUnderPull() public {
         uint256 amount = 100e18;
+        address attacker = makeAddr("attacker");
 
         token.mint(caller, amount);
         vm.prank(caller);
@@ -348,8 +354,26 @@ contract JBProjectPayer_Edge is Test {
             metadata: ""
         });
 
-        // The payer should have approved the terminal for the amount.
-        // Since the mock terminal doesn't actually pull tokens, the allowance remains.
-        assertEq(token.allowance(address(payer), address(terminal)), amount);
+        assertEq(token.allowance(address(payer), address(terminal)), 0);
+
+        vm.expectRevert();
+        terminal.drain({token: IERC20(address(token)), from: address(payer), to: attacker, amount: amount});
+    }
+
+    function test_AddToBalanceOf_ERC20_ClearsTerminalAllowanceAfterUnderPull() public {
+        uint256 amount = 100e18;
+        address attacker = makeAddr("attacker");
+
+        token.mint(caller, amount);
+        vm.prank(caller);
+        token.approve(address(payer), amount);
+
+        vm.prank(caller, caller);
+        payer.addToBalanceOf({projectId: PROJECT_ID, token: address(token), amount: amount, memo: "", metadata: ""});
+
+        assertEq(token.allowance(address(payer), address(terminal)), 0);
+
+        vm.expectRevert();
+        terminal.drain({token: IERC20(address(token)), from: address(payer), to: attacker, amount: amount});
     }
 }

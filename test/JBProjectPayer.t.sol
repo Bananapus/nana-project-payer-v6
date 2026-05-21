@@ -267,6 +267,24 @@ contract JBProjectPayer_Unit is Test {
         assertEq(recordedBeneficiary, caller);
     }
 
+    function test_RevertWhen_FallbackCalldataIsSent() public {
+        // Only empty-calldata ETH transfers should auto-forward through receive(). Unknown calldata must not be treated
+        // as an implicit project payment, because callers should use pay() or addToBalanceOf() for explicit routing.
+        vm.prank(caller);
+        (bool zeroValueSuccess,) = address(payer).call(hex"deadbeef");
+        assertFalse(zeroValueSuccess);
+
+        uint256 amount = 1 ether;
+        vm.deal(caller, amount);
+        vm.prank(caller);
+        (bool valueSuccess,) = address(payer).call{value: amount}(hex"deadbeef");
+        assertFalse(valueSuccess);
+
+        assertEq(terminal.payRecordCount(), 0);
+        assertEq(terminal.addToBalanceRecordCount(), 0);
+        assertEq(address(payer).balance, 0);
+    }
+
     //*********************************************************************//
     // ----------------------- pay function tests ------------------------ //
     //*********************************************************************//

@@ -356,6 +356,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
 
         // Restore the previous payer.
         originalPayer = previousPayer;
+
+        // Clear any allowance left by terminals which pull less than `amount`.
+        if (token != JBConstants.NATIVE_TOKEN) IERC20(token).forceApprove({spender: address(terminal), value: 0});
     }
 
     /// @notice Add to the balance of the specified project.
@@ -409,6 +412,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
 
         // Restore the previous payer.
         originalPayer = previousPayer;
+
+        // Clear any allowance left by terminals which pull less than `amount`.
+        if (token != JBConstants.NATIVE_TOKEN) IERC20(token).forceApprove({spender: address(terminal), value: 0});
     }
 
     //*********************************************************************//
