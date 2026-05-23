@@ -7,15 +7,6 @@
     "url": "git+https://github.com/Bananapus/nana-project-payer-v6"
   },
   "files": [
-    "ADMINISTRATION.md",
-    "ARCHITECTURE.md",
-    "AUDIT_INSTRUCTIONS.md",
-    "LICENSE",
-    "README.md",
-    "RISKS.md",
-    "SKILLS.md",
-    "STYLE_GUIDE.md",
-    "USER_JOURNEYS.md",
     "foundry.toml",
     "remappings.txt",
     "script/Deploy.s.sol",
