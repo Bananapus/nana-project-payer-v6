@@ -20,7 +20,7 @@
 **Description**: The payer trusts `JBDirectory.primaryTerminalOf()` to return a legitimate terminal. If the directory is compromised or the project owner sets a malicious terminal, funds are at risk.
 **Mitigation**: This is a protocol-level concern. The payer cannot independently verify terminal legitimacy. Users should verify the project's terminal configuration before sending large amounts.
 
-### R-4: ERC20 Residual Allowance
+### R-4: ERC-20 Residual Allowance
 
 **Severity**: Low
 **Description**: ERC-20 forwarding temporarily approves the selected terminal so it can pull funds during `pay` or `addToBalanceOf`. A terminal that returns after pulling less than the approved amount would otherwise leave a live allowance against any tokens still held by the payer.
@@ -29,7 +29,7 @@
 ### R-5: Stuck Tokens
 
 **Severity**: Low
-**Description**: ERC20 tokens sent directly to the payer contract (not via `pay()` or `addToBalanceOf()`) cannot be recovered. There is no sweep function.
+**Description**: ERC-20 tokens sent directly to the payer contract (not via `pay()` or `addToBalanceOf()`) cannot be recovered. There is no sweep function.
 **Mitigation**: Document this limitation. The payer is designed for programmatic use, not as a general-purpose wallet.
 
 ### R-6: Original-Payer Transient Exposure

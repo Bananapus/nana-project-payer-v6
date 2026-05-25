@@ -9,7 +9,7 @@ This repo provides a way for anyone to deploy a payable address that automatical
 | Actor | Description |
 |---|---|
 | **Project owner** | Deploys and configures a project payer for their Juicebox project. |
-| **Payer** | Sends ETH or ERC20 tokens to the project payer address. |
+| **Payer** | Sends ETH or ERC-20 tokens to the project payer address. |
 | **Integrator** | A contract or frontend that routes payments through the project payer. |
 
 ## Key Surfaces
@@ -70,11 +70,11 @@ This repo provides a way for anyone to deploy a payable address that automatical
 - The project's terminal balance increases by the payment amount.
 - If in `pay` mode, project tokens are minted to the beneficiary.
 
-## Journey 3: Integrator Routes ERC20 Tokens
+## Journey 3: Integrator Routes ERC-20 Tokens
 
-**Actor**: A contract or frontend routing ERC20 payments
+**Actor**: A contract or frontend routing ERC-20 payments
 
-**Intent**: Route ERC20 tokens to a Juicebox project through the project payer.
+**Intent**: Route ERC-20 tokens to a Juicebox project through the project payer.
 
 **Preconditions**:
 - The caller has approved the project payer for the token amount.
@@ -86,7 +86,7 @@ This repo provides a way for anyone to deploy a payable address that automatical
 3. The payer approves the terminal and forwards the tokens.
 
 **Failure Modes**:
-- Reverts if `msg.value > 0` when paying with an ERC20 token.
+- Reverts if `msg.value > 0` when paying with an ERC-20 token.
 - Reverts if the caller hasn't approved the payer for the token amount.
 - Reverts if no terminal is found for the project and token.
 

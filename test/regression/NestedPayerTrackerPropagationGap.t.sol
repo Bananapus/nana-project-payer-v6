@@ -118,7 +118,7 @@ contract NestedPayerTrackerPropagationGapTest is Test {
         });
         vm.stopPrank();
 
-        // The project payer now reads the upstream tracker's IJBPayerTracker.originalPayer() and
+        // The project payer reads the upstream tracker's IJBPayerTracker.originalPayer() and
         // exposes the true caller to the downstream terminal, so the refund reaches `user`.
         assertEq(terminal.lastRefundTo(), user, "refund propagates through upstream tracker to user");
         assertEq(token.balanceOf(user), amount / 2, "original payer receives the leftover refund");

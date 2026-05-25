@@ -33,11 +33,11 @@ Tests, deployment scripts, and docs are supporting context. Fork tests in `test/
 
 - Terminal lookup and trust in `DIRECTORY.primaryTerminalOf(projectId, token)`.
 - ETH forwarding through `receive()`, `pay()`, and `addToBalanceOf()`.
-- ERC20 balance-delta accounting for fee-on-transfer tokens.
-- ERC20 approval lifecycle before terminal calls.
+- ERC-20 balance-delta accounting for fee-on-transfer tokens.
+- ERC-20 approval lifecycle before terminal calls.
 - Clone initialization authority and ownership transfer.
 - Beneficiary fallback behavior when no explicit or default beneficiary is set.
-- Stuck-token posture for direct ERC20 transfers that bypass payer functions.
+- Stuck-token posture for direct ERC-20 transfers that bypass payer functions.
 
 ## Practical Commands
 
