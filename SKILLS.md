@@ -33,7 +33,7 @@ test/JBProjectPayer_Edge.t.sol      ← Edge cases
 
 ## Purpose
 
-This repo gives Juicebox V6 projects payable deposit addresses. Anyone deploys a clone via the factory, configures it for a project, and shares the address. ETH sent to the address is automatically routed to the project's terminal. ERC20 tokens can be routed via explicit function calls.
+This repo gives Juicebox V6 projects payable deposit addresses. Anyone deploys a clone via the factory, configures it for a project, and shares the address. ETH sent to the address is automatically routed to the project's terminal. ERC-20 tokens can be routed via explicit function calls.
 
 ## Working Rules
 

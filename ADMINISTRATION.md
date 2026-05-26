@@ -40,7 +40,7 @@ This document describes the control model for `nana-project-payer-v6`.
 
 ## Recovery Posture
 
-- **Stuck ERC20 tokens**: If ERC20 tokens are sent directly to the payer (not via `pay()`/`addToBalanceOf()`), they cannot be recovered. The payer has no sweep function.
+- **Stuck ERC-20 tokens**: If ERC-20 tokens are sent directly to the payer (not via `pay()`/`addToBalanceOf()`), they cannot be recovered. The payer has no sweep function.
 - **Wrong defaults**: The owner can update defaults at any time via `setDefaultValues()`.
 - **Compromised owner**: Ownership can be transferred or renounced. If the owner is compromised, they can only change routing defaults — they cannot steal funds.
 - **Malicious terminal**: If the directory returns a malicious terminal, funds sent to the payer will be routed to that terminal. This is a directory-level concern, not specific to the payer.

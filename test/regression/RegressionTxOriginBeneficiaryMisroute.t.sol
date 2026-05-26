@@ -94,7 +94,7 @@ contract RegressionTxOriginBeneficiaryMisrouteTest is Test {
         });
     }
 
-    /// @notice After fix: receive() uses msg.sender, so the funding contract gets tokens, not tx.origin.
+    /// @notice `receive()` uses msg.sender as the fallback beneficiary, not tx.origin.
     function test_ReceivePath_MintsToFundingContractNotTxOrigin() public {
         vm.deal(address(treasury), 1 ether);
 
@@ -102,12 +102,12 @@ contract RegressionTxOriginBeneficiaryMisrouteTest is Test {
         treasury.forwardViaReceive(payable(address(payer)));
 
         assertEq(terminal.lastAmount(), 1 ether);
-        // After fix: beneficiary is the funding contract (msg.sender), not the relayer (tx.origin).
+        // The beneficiary is the funding contract (msg.sender), not the relayer (tx.origin).
         assertEq(terminal.lastBeneficiary(), address(treasury));
         assertTrue(terminal.lastBeneficiary() != relayer);
     }
 
-    /// @notice After fix: pay() uses msg.sender, so the funding contract gets tokens, not tx.origin.
+    /// @notice `pay()` uses msg.sender as the fallback beneficiary, not tx.origin.
     function test_PayPath_MintsToFundingContractNotTxOrigin() public {
         vm.deal(address(treasury), 2 ether);
 
@@ -115,7 +115,7 @@ contract RegressionTxOriginBeneficiaryMisrouteTest is Test {
         treasury.forwardViaPay(payer, PROJECT_ID);
 
         assertEq(terminal.lastAmount(), 2 ether);
-        // After fix: beneficiary is the funding contract (msg.sender), not the relayer (tx.origin).
+        // The beneficiary is the funding contract (msg.sender), not the relayer (tx.origin).
         assertEq(terminal.lastBeneficiary(), address(treasury));
         assertTrue(terminal.lastBeneficiary() != relayer);
     }

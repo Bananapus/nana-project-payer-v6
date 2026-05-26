@@ -1,6 +1,6 @@
 # nana-project-payer-v6
 
-Deploys payable addresses that automatically route received ETH or ERC20 tokens to a Juicebox V6 project treasury, giving every project a simple payable address.
+Deploys payable addresses that automatically route received ETH or ERC-20 tokens to a Juicebox V6 project treasury, giving every project a simple payable address.
 
 | Document | Purpose |
 |---|---|
@@ -13,7 +13,7 @@ Deploys payable addresses that automatically route received ETH or ERC20 tokens 
 
 ## Overview
 
-Anyone can deploy a `JBProjectPayer` clone that, when sent ETH, automatically forwards it to a specified Juicebox project via `pay` (issuing tokens to a beneficiary) or `addToBalanceOf` (contributing without token issuance). ERC20 tokens can also be routed through the explicit `pay()` and `addToBalanceOf()` functions.
+Anyone can deploy a `JBProjectPayer` clone that, when sent ETH, automatically forwards it to a specified Juicebox project via `pay` (issuing tokens to a beneficiary) or `addToBalanceOf` (contributing without token issuance). ERC-20 tokens can also be routed through the explicit `pay()` and `addToBalanceOf()` functions.
 
 ## Key Contracts
 
@@ -42,17 +42,23 @@ Think of each `JBProjectPayer` clone as a **deposit address** for a Juicebox pro
 ## Install
 
 ```bash
-npm install
+npm install @bananapus/project-payer-v6
 ```
 
 ## Development
 
 ```bash
+npm install
 forge test --deny notes
 forge fmt --check
 forge build --deny notes --sizes --skip "*/test/**" --skip "*/script/**"
 npm pack --dry-run --json
 ```
+
+Useful scripts:
+
+- `npm run deploy:mainnets`
+- `npm run deploy:testnets`
 
 ## Deployment
 
@@ -87,7 +93,7 @@ forge script script/Deploy.s.sol --broadcast --rpc-url <RPC_URL>
 
 - **Beneficiary fallback**: When no beneficiary is configured, project tokens go to `msg.sender`. Smart contract wallets and relayers should set a `defaultBeneficiary` or pass an explicit beneficiary.
 - **Fee-on-transfer tokens**: The contract measures actual balance changes, correctly handling fee-on-transfer tokens.
-- **ERC20 approval**: The payer approves the terminal for each payment. Residual allowances may remain if the terminal doesn't pull the full amount.
+- **ERC-20 approval**: The payer approves the terminal for each payment. Residual allowances may remain if the terminal doesn't pull the full amount.
 - **No sweep function**: Tokens accidentally sent to the payer (outside of `pay()`/`addToBalanceOf()`) may be stuck. This is intentional to keep the contract simple.
 
 ## For AI Agents
