@@ -1,6 +1,6 @@
 {
   "name": "@bananapus/project-payer-v6",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
     "src/"
   ],
   "engines": {
-    "node": "25.9.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "test": "forge test",
