@@ -64,7 +64,7 @@ contract JBProjectPayerDeployer_Unit is Test {
     //*********************************************************************//
 
     function test_Constructor_SetsImplementation() public view {
-        assertTrue(deployer.IMPLEMENTATION() != address(0));
+        assertNotEq(deployer.IMPLEMENTATION(), address(0));
         assertTrue(deployer.IMPLEMENTATION().code.length > 0);
     }
 
@@ -86,7 +86,7 @@ contract JBProjectPayerDeployer_Unit is Test {
             owner: owner
         });
 
-        assertTrue(address(projectPayer) != address(0));
+        assertNotEq(address(projectPayer), address(0));
         assertEq(projectPayer.defaultProjectId(), 1);
         assertEq(projectPayer.defaultBeneficiary(), beneficiary);
         assertEq(keccak256(bytes(projectPayer.defaultMemo())), keccak256("hello"));
@@ -159,7 +159,7 @@ contract JBProjectPayerDeployer_Unit is Test {
         });
 
         // Different addresses.
-        assertTrue(address(payer1) != address(payer2));
+        assertNotEq(address(payer1), address(payer2));
 
         // Different defaults.
         assertEq(payer1.defaultProjectId(), 1);
