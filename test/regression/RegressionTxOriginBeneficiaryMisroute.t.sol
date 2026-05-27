@@ -104,7 +104,7 @@ contract RegressionTxOriginBeneficiaryMisrouteTest is Test {
         assertEq(terminal.lastAmount(), 1 ether);
         // The beneficiary is the funding contract (msg.sender), not the relayer (tx.origin).
         assertEq(terminal.lastBeneficiary(), address(treasury));
-        assertTrue(terminal.lastBeneficiary() != relayer);
+        assertNotEq(terminal.lastBeneficiary(), relayer);
     }
 
     /// @notice `pay()` uses msg.sender as the fallback beneficiary, not tx.origin.
@@ -117,7 +117,7 @@ contract RegressionTxOriginBeneficiaryMisrouteTest is Test {
         assertEq(terminal.lastAmount(), 2 ether);
         // The beneficiary is the funding contract (msg.sender), not the relayer (tx.origin).
         assertEq(terminal.lastBeneficiary(), address(treasury));
-        assertTrue(terminal.lastBeneficiary() != relayer);
+        assertNotEq(terminal.lastBeneficiary(), relayer);
     }
 
     /// @notice Safe/multisig scenario: contract caller gets tokens, not the EOA signer.
