@@ -2,14 +2,19 @@
 
 Deploys payable addresses that automatically route received ETH or ERC-20 tokens to a Juicebox V6 project treasury, giving every project a simple payable address.
 
+## Documentation
+
 | Document | Purpose |
 |---|---|
-| [ARCHITECTURE.md](ARCHITECTURE.md) | System design, invariants, and module overview |
+| [ARCHITECTURE.md](ARCHITECTURE.md) | System design and module overview |
+| [INVARIANTS.md](INVARIANTS.md) | Per-repo guarantees and invariants |
 | [USER_JOURNEYS.md](USER_JOURNEYS.md) | Actor-focused operational flows |
 | [ADMINISTRATION.md](ADMINISTRATION.md) | Control model and privileged surfaces |
-| [SKILLS.md](SKILLS.md) | AI agent guidance |
 | [RISKS.md](RISKS.md) | Security and operational risks |
 | [AUDIT_INSTRUCTIONS.md](AUDIT_INSTRUCTIONS.md) | Practical audit scope and commands |
+| [SKILLS.md](SKILLS.md) | AI agent guidance |
+| [CHANGELOG.md](CHANGELOG.md) | Release history |
+| [STYLE_GUIDE.md](STYLE_GUIDE.md) | Coding conventions |
 
 ## Overview
 
