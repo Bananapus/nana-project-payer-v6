@@ -1,7 +1,5 @@
 # Invariants of `nana-project-payer-v6`
 
-Last updated: 2026-05-28.
-
 Scope: the two production contracts in `src/` — `JBProjectPayer` and `JBProjectPayerDeployer` — plus the two interfaces in `src/interfaces/` (`IJBProjectPayer`, `IJBProjectPayerDeployer`) and `src/interfaces/IJBPayerTracker.sol`. `JBProjectPayer` is an EIP-1167 cloneable per-user payment relay that auto-forwards received ETH (via `receive()`) or explicitly routed ETH/ERC-20 (via `pay`/`addToBalanceOf`) to a configured Juicebox project's primary terminal. A transient `originalPayer` slot is exposed on `IJBPayerTracker` so downstream router-style terminals can resolve partial-fill refunds and credit cash-outs to the true upstream payer instead of the intermediary clone.
 
 This file is the per-repo scoped invariants doc. The protocol-wide guarantees for the V6 deploy live in [`../INVARIANTS.md`](../INVARIANTS.md). The `RISKS.md` in this repo enumerates the runtime/admin/deployment/integration risk-set this invariants doc operationally implements; `ARCHITECTURE.md` is the higher-altitude system overview.
