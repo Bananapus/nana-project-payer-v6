@@ -80,7 +80,7 @@ contract CallbackToken is ERC20 {
     }
 }
 
-contract ProjectPayerCallbackTokenAuditTest is Test {
+contract ProjectPayerCallbackTokenTest is Test {
     address internal _caller = makeAddr("caller");
     address internal _owner = makeAddr("owner");
     uint256 internal _projectId = 1;
