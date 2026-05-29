@@ -12,15 +12,15 @@ import {IJBProjectPayer} from "../../src/interfaces/IJBProjectPayer.sol";
 import {IJBPayerTracker} from "../../src/interfaces/IJBPayerTracker.sol";
 import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
 
-contract AuditToken is ERC20 {
-    constructor() ERC20("Audit Token", "AUD") {}
+contract MockToken is ERC20 {
+    constructor() ERC20("Mock Token", "MOCK") {}
 
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
     }
 }
 
-contract AuditDirectory {
+contract MockDirectory {
     IJBTerminal internal _terminal;
 
     function setTerminal(IJBTerminal terminal) external {
@@ -75,13 +75,13 @@ contract RouterStyleRefundTerminal {
     function addToBalanceOf(uint256, address, uint256, bool, string calldata, bytes calldata) external payable {}
 }
 
-contract ProjectPayerRouterRefundAuditTest is Test {
+contract ProjectPayerRouterRefundTest is Test {
     address internal _caller = makeAddr("caller");
     uint256 internal _projectId = 1;
 
-    function _setupErc20() internal returns (AuditToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) {
-        token = new AuditToken();
-        AuditDirectory directory = new AuditDirectory();
+    function _setupErc20() internal returns (MockToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) {
+        token = new MockToken();
+        MockDirectory directory = new MockDirectory();
         term = new RouterStyleRefundTerminal();
         directory.setTerminal(IJBTerminal(address(term)));
 
@@ -97,7 +97,7 @@ contract ProjectPayerRouterRefundAuditTest is Test {
     }
 
     function test_routerStyleRefundReachesOriginalPayer_erc20() public {
-        (AuditToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) = _setupErc20();
+        (MockToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) = _setupErc20();
 
         uint256 amount = 100 ether;
         token.mint(_caller, amount);
@@ -155,7 +155,7 @@ contract ProjectPayerRouterRefundAuditTest is Test {
         // A nested call into the payer must restore the outer payer after returning.
         // We exercise this by having the terminal call back into `pay()` from a second account
         // and verifying both forwards observed their respective callers.
-        (AuditToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) = _setupErc20();
+        (MockToken token, IJBProjectPayer payer, RouterStyleRefundTerminal term) = _setupErc20();
         // (Single direct call is sufficient for the documented invariant; the outer
         // call should still see the value cleared after `terminal.pay` returns.)
         uint256 amount = 50 ether;
