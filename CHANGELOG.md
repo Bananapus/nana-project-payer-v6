@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.0.21
+
+- Raise dependency floors to the latest published versions.
+- Document NatSpec, comment, and lint conventions in `STYLE_GUIDE.md`.
+
 ## 0.0.12 — Bump nana-core-v6 to ^0.0.53
 
 - `@bananapus/core-v6`: `^0.0.48 → ^0.0.53` ([PR #145](https://github.com/Bananapus/nana-core-v6/pull/145)).
