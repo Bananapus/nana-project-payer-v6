@@ -74,7 +74,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
     // -------------------- transient stored properties ------------------ //
     //*********************************************************************//
 
-    /// @inheritdoc IJBPayerTracker
+    /// @notice The original payer of the current transaction.
     /// @dev Set to `msg.sender` for the duration of each forwarded `pay`/`addToBalanceOf` call so downstream
     /// router-style terminals can resolve refunds and credit cash-outs against the true payer. Always cleared
     /// back to the prior value after the terminal call returns.

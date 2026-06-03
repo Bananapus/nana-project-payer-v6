@@ -4,7 +4,7 @@
 
 This document describes the control model for `nana-project-payer-v6`.
 
-## Control Posture
+## Control posture
 
 **Minimal admin surface.** The deployer factory is permissionless and immutable. Each project payer clone has an owner who can only change default routing parameters — they cannot access, redirect, or freeze funds in transit.
 
@@ -16,7 +16,7 @@ This document describes the control model for `nana-project-payer-v6`.
 | **Payer Owner** | Set during deployment | Can update default values (project ID, beneficiary, memo, metadata, routing mode). Can transfer or renounce ownership. |
 | **Anyone** | Any address | Can send ETH via `receive()`, call `pay()`, or call `addToBalanceOf()`. |
 
-## Privileged Surfaces
+## Privileged surfaces
 
 | Function | Who | What It Does |
 |---|---|---|
@@ -24,7 +24,7 @@ This document describes the control model for `nana-project-payer-v6`.
 | `transferOwnership()` | Owner | Transfers ownership to a new address. |
 | `renounceOwnership()` | Owner | Permanently removes ownership. Defaults become immutable. |
 
-## Immutable and One-Way Operations
+## Immutable and one-way operations
 
 | Operation | Reversibility |
 |---|---|
@@ -32,19 +32,19 @@ This document describes the control model for `nana-project-payer-v6`.
 | Clone deployment | **Irreversible.** Clones cannot be destroyed or upgraded. A new clone must be deployed to change immutable parameters. |
 | `DIRECTORY` reference | **Immutable.** Set at implementation construction time. All clones share the same directory. A new deployer must be deployed for a different directory. |
 
-## Operational Notes
+## Operational notes
 
 - **Owner ≠ project owner.** The payer owner is independent of the Juicebox project owner. They may or may not be the same address.
 - **Defaults only affect `receive()`.** The `pay()` and `addToBalanceOf()` functions accept explicit parameters, bypassing defaults entirely.
 - **No pause mechanism.** The payer cannot be paused. If the terminal reverts, payments will also revert.
 
-## Recovery Posture
+## Recovery posture
 
 - **Stuck ERC-20 tokens**: If ERC-20 tokens are sent directly to the payer (not via `pay()`/`addToBalanceOf()`), they cannot be recovered. The payer has no sweep function.
 - **Wrong defaults**: The owner can update defaults at any time via `setDefaultValues()`.
 - **Compromised owner**: Ownership can be transferred or renounced. If the owner is compromised, they can only change routing defaults — they cannot steal funds.
 - **Malicious terminal**: If the directory returns a malicious terminal, funds sent to the payer will be routed to that terminal. This is a directory-level concern, not specific to the payer.
 
-## Admin Boundaries
+## Admin boundaries
 
 The payer owner controls **where** funds go (default project ID and beneficiary), not **whether** they go. Funds are always forwarded in the same transaction — the owner cannot hold or redirect funds after they arrive.

@@ -1,13 +1,13 @@
 # Skills
 
-## Use This File For
+## Use this file for
 
 - Understanding how the project payer routes funds to Juicebox projects.
 - Debugging payment routing failures (terminal not found, revert on pay).
 - Extending the payer with custom routing logic.
 - Deploying new project payer instances.
 
-## Read This Next
+## Read this next
 
 | Task | Files |
 |---|---|
@@ -18,9 +18,9 @@
 | Debug terminal lookup | `@bananapus/core-v6/src/interfaces/IJBDirectory.sol` |
 | Debug terminal pay/addToBalance | `@bananapus/core-v6/src/interfaces/IJBTerminal.sol` |
 | See edge cases | `test/JBProjectPayer_Edge.t.sol` |
-| See router-refund regression | `test/audit/ProjectPayerRouterRefund.t.sol` |
+| See router-refund regression | `test/regression/ProjectPayerRouterRefund.t.sol` |
 
-## Repo Map
+## Repo map
 
 ```
 src/JBProjectPayer.sol              ← Main logic: receive, pay, addToBalance
@@ -35,7 +35,7 @@ test/JBProjectPayer_Edge.t.sol      ← Edge cases
 
 This repo gives Juicebox V6 projects payable deposit addresses. Anyone deploys a clone via the factory, configures it for a project, and shares the address. ETH sent to the address is automatically routed to the project's terminal. ERC-20 tokens can be routed via explicit function calls.
 
-## Working Rules
+## Working rules
 
 1. All fund routing goes through `DIRECTORY.primaryTerminalOf()` — never hardcode terminal addresses.
 2. The payer is stateless with respect to funds — it never holds balances across transactions.
