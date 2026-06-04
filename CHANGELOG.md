@@ -1,64 +1,63 @@
-# Changelog
-
-## 0.0.21
-
-- Raise dependency floors to the latest published versions.
-- Document NatSpec, comment, and lint conventions in `STYLE_GUIDE.md`.
-
-## 0.0.12 — Bump nana-core-v6 to ^0.0.53
-
-- `@bananapus/core-v6`: `^0.0.48 → ^0.0.53` ([PR #145](https://github.com/Bananapus/nana-core-v6/pull/145)).
-- All `JBRulesetMetadata` test literals patched to include `pauseCrossProjectFeeFreeInflows: false`.
+# V5 to V6 Changelog
 
 ## Scope
 
-This repo was not part of the deployed v5 ecosystem that the top-level changelog measures, so it is excluded from the
-ecosystem delta.
+This is a V5-to-V6 migration changelog, not a package release log or commit history. `nana-project-payer-v6` has no deployed V5 package counterpart in `../../v5/evm`; it is a new V6 contract package.
 
-## In-v6 changes
-
-### `0.0.10` — `JBProjectPayer` exposes `IJBPayerTracker`
-
-`JBProjectPayer` implements `IJBPayerTracker` so router-style terminals (e.g.
-`JBRouterTerminal._resolveOriginalPayer`) resolve partial-fill ERC-20 refunds and credit
-cash-outs to the **original caller** instead of the forwarding payer contract. Without the
-tracker, downstream router terminals fall back to `msg.sender == JBProjectPayer` as the refund
-target, and because the payer has no sweep path, such funds are permanently stuck.
-
-- New interface: `src/interfaces/IJBPayerTracker.sol` (single view, `originalPayer()`).
-- New transient slot: `JBProjectPayer.originalPayer` set to `msg.sender` for the duration of
-  each `_pay` / `_addToBalanceOf` forward, with save/restore so nested pay-hook reentry
-  restores the outer payer.
-- `JBProjectPayer.supportsInterface` reports `type(IJBPayerTracker).interfaceId` in
-  addition to `IJBProjectPayer` and `IERC165`.
-
-Indexer impact: none — view-only addition.
-
-Integrator impact: a router-routed partial-fill cash-out returns the ERC-20 leftover to the
-original payer EOA or contract that called `pay` / `addToBalanceOf`, rather than leaving it
-stuck on the project payer.
-
-## Current v6 surface
+## Current V6 Surface
 
 - `JBProjectPayer`
 - `JBProjectPayerDeployer`
 - `IJBProjectPayer`
-- `IJBPayerTracker`
 - `IJBProjectPayerDeployer`
+- `IJBPayerTracker`
 
 ## Summary
 
-- This repo introduces a v6-era project payer package for Juicebox projects.
-- `JBProjectPayerDeployer` deploys EIP-1167 clones of `JBProjectPayer`.
-- Each payer clone can receive ETH directly and forward it to a configured project's primary terminal.
-- Explicit `pay(...)` and `addToBalanceOf(...)` calls can route ERC-20 tokens or native token payments with
-  caller-provided parameters.
-- Fee-on-transfer ERC-20 tokens are handled with balance-delta accounting before terminal forwarding.
-- Default routing values are owner-controlled per clone: project ID, beneficiary, memo, metadata, and
-  pay-vs-add-to-balance mode.
+- V6 introduces project payer clones that receive native tokens or ERC-20s and forward them to a project's terminal through `pay(...)` or `addToBalanceOf(...)`.
+- Each clone stores default project, beneficiary, memo, metadata, and add-to-balance mode values.
+- The deployer creates EIP-1167 minimal proxy clones and emits deployment metadata for indexers.
+- The payer integrates with the V6 terminal token model, including explicit `token` and `amount` inputs for ERC-20 payments.
 
-## Migration notes
+## ABI, Event, and Error Changes
 
-- Do not count this repo in the deployed v5-to-v6 ecosystem summary.
-- Treat it as a new v6 payment-routing utility. Integrations should verify the current terminal from `JBDirectory` and
-  set explicit beneficiaries for relayed or contract-based payments.
+- No V5 ABI exists to diff against. All project-payer ABI surface is new to V6.
+- New payer functions:
+  - `initialize(...)`
+  - `setDefaultValues(...)`
+  - `pay(uint256,address,uint256,address,uint256,string,bytes)`
+  - `addToBalanceOf(uint256,address,uint256,string,bytes)`
+  - default-value getters
+- New deployer function:
+  - `deployProjectPayer(...)`
+- New events:
+  - `SetDefaultValues`
+  - `DeployProjectPayer`
+
+## Machine-Checked ABI Coverage
+
+Generated from Foundry `out/**/*.json` artifacts, filtered to this repo's own runtime source roots and excluding tests, scripts, and dependencies.
+
+- V5 comparison package: none; this is a new V6 runtime ABI surface.
+- Own-source ABI artifacts compared: V6 `5`, V5 `0`.
+- Contract/interface coverage: `5` added, `0` removed, `0` shared names with ABI changes, `0` shared names ABI-identical.
+- Shared-name ABI item deltas: `0` added, `0` removed, `0` modified.
+
+Added V6 ABI artifacts:
+- `IJBPayerTracker` from `src/interfaces/IJBPayerTracker.sol`: `1` functions, `0` events, `0` errors.
+- `IJBProjectPayer` from `src/interfaces/IJBProjectPayer.sol`: `12` functions, `1` events, `0` errors.
+- `IJBProjectPayerDeployer` from `src/interfaces/IJBProjectPayerDeployer.sol`: `3` functions, `1` events, `0` errors.
+- `JBProjectPayer` from `src/JBProjectPayer.sol`: `16` functions, `2` events, `6` errors.
+- `JBProjectPayerDeployer` from `src/JBProjectPayerDeployer.sol`: `3` functions, `1` events, `2` errors.
+
+Generated event/error name deltas:
+- Event names added:
+  - `DeployProjectPayer`, `OwnershipTransferred`, `SetDefaultValues`.
+- Error names added:
+  - `FailedDeployment`, `InsufficientBalance`, `JBProjectPayer_AlreadyInitialized`, `JBProjectPayer_NoMsgValueAllowed`, `JBProjectPayer_TerminalNotFound`, `OwnableInvalidOwner`, `OwnableUnauthorizedAccount`, `SafeERC20FailedOperation`.
+
+## Migration Notes
+
+- Treat project payer addresses as new V6 helper contracts, not V5 terminal replacements.
+- Index `DeployProjectPayer` to discover clones and `SetDefaultValues` to keep default routing state current.
+- Use the V6 terminal token conventions for native-token and ERC-20 payments.

@@ -11,7 +11,7 @@ Deploys payable addresses that automatically route received ETH or ERC-20 tokens
 - [RISKS.md](./RISKS.md) — security and operational risks.
 - [AUDIT_INSTRUCTIONS.md](./AUDIT_INSTRUCTIONS.md) — practical audit scope and commands.
 - [SKILLS.md](./SKILLS.md) — AI agent guidance.
-- [CHANGELOG.md](./CHANGELOG.md) — release history.
+- [CHANGELOG.md](./CHANGELOG.md) - V5 to V6 migration changelog.
 - [STYLE_GUIDE.md](./STYLE_GUIDE.md) — coding conventions.
 
 ## Overview
