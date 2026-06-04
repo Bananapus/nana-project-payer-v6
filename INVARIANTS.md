@@ -6,7 +6,7 @@ This file is the per-repo scoped invariants doc. The protocol-wide guarantees fo
 
 ---
 
-# Section A — Guarantees to Users (Payers)
+## Section A — Guarantees to users (payers)
 
 "Users" here are anyone who sends ETH to a clone's `receive()` or calls `pay`/`addToBalanceOf` directly. There is no "holder" surface — the payer never custodies project tokens; the terminal mints directly to the beneficiary.
 
@@ -43,7 +43,7 @@ This file is the per-repo scoped invariants doc. The protocol-wide guarantees fo
 
 ---
 
-# Section B — Guarantees to Clone Owners
+## Section B — Guarantees to clone owners
 
 Each clone has a single `owner` set at `initialize` time. The owner controls the default routing parameters for the `receive()` and direct-call paths.
 
@@ -62,13 +62,13 @@ Each clone has a single `owner` set at `initialize` time. The owner controls the
 
 ---
 
-# Section C — Per-Contract Operation Inventory
+## Section C — Per-contract operation inventory
 
 ## C.1 `JBProjectPayer` — `src/JBProjectPayer.sol`
 
 ### Constructor (implementation only, runs once)
 
-- **`constructor(IJBDirectory directory)`** (`src/JBProjectPayer.sol:89–92`) — sets `DIRECTORY` and `DEPLOYER = msg.sender`, calls `Ownable(msg.sender)`. Runs on the IMPLEMENTATION contract; clones do NOT re-run the constructor (EIP-1167), so they inherit the implementation's immutables via delegatecall-on-immutable-read semantics... no, wait — `DIRECTORY` and `DEPLOYER` are `immutable` so they are baked into the implementation's runtime bytecode. EIP-1167 clones delegatecall to the implementation, so every clone reads the same `DIRECTORY` and `DEPLOYER` values. This is correct and intentional: one factory per directory; one implementation per factory.
+- **`constructor(IJBDirectory directory)`** (`src/JBProjectPayer.sol:89–92`) — sets `DIRECTORY` and `DEPLOYER = msg.sender`, calls `Ownable(msg.sender)`. Runs on the IMPLEMENTATION contract; clones do NOT re-run the constructor (EIP-1167). `DIRECTORY` and `DEPLOYER` are `immutable` so they are baked into the implementation's runtime bytecode. EIP-1167 clones delegatecall to the implementation, so every clone reads the same `DIRECTORY` and `DEPLOYER` values. This is correct and intentional: one factory per directory; one implementation per factory.
 
 ### Initialization (deployer-only, one-shot per clone)
 
@@ -122,7 +122,7 @@ Each clone has a single `owner` set at `initialize` time. The owner controls the
 
 ---
 
-# Section D — Cross-Cutting Invariants
+## Section D — Cross-cutting invariants
 
 - **D.1 Atomic forwarding — no held balances by design.** Every entrypoint that accepts funds (`receive`, `pay`, `addToBalanceOf`) forwards them in the same transaction via `_pay` / `_addToBalanceOf`. The clone has no escrow state, no buffered queue, no scheduled-send. `ARCHITECTURE.md` Core Invariant 1 codifies this.
 - **D.2 Balance-delta accounting on every ERC-20 pull.** A.1.3 applies to both `pay` and `addToBalanceOf`. Fee-on-transfer tokens (I-1) are forwarded at the realized amount, not the nominal one — the `forceApprove(terminal, amount)` immediately following uses the delta, so the terminal can pull exactly what landed, not more.
@@ -137,7 +137,7 @@ Each clone has a single `owner` set at `initialize` time. The owner controls the
 
 ---
 
-# Section E — Centralization Caveats
+## Section E — Centralization caveats
 
 **Per-clone centralization:** each clone has a single `owner`, set freely at deploy time by whoever calls `deployProjectPayer` (B.1.2). The owner can:
 
@@ -163,7 +163,7 @@ The owner CANNOT:
 
 ---
 
-# Section F — Key Code References
+## Section F — Key code references
 
 | Invariant | File:lines |
 |---|---|
@@ -191,21 +191,3 @@ The owner CANNOT:
 | C.1 ERC-165 (`IJBProjectPayer`, `IJBPayerTracker`) | `src/JBProjectPayer.sol:292–295` |
 | C.2 factory constructor (impl deploy + dir capture) | `src/JBProjectPayerDeployer.sol:28–31` |
 | C.2 `deployProjectPayer` (clone + initialize + event) | `src/JBProjectPayerDeployer.sol:45–81` |
-
----
-
-# Doc audit notes
-
-Pass over the existing top-level docs:
-
-- **README.md** — current; the cloneable-payer-relay mental model matches the source. No edits.
-- **ARCHITECTURE.md** — current; the "Core Invariants" (5 bullets) overlap with sections A/D here at higher altitude and remain a useful quick-reference. No edits.
-- **RISKS.md** — current; R-1 through R-6, A-1, A-2, D-1, I-1, I-2 each map to one or more invariants here (most explicitly cited inline above). The R-6 / D.4 cross-reference on subclass override safety is intentional.
-- **USER_JOURNEYS.md** — current.
-- **ADMINISTRATION.md** — current; the "no fund-access surface for owner" posture matches B.1.3 / D.8.
-- **AUDIT_INSTRUCTIONS.md** — current.
-- **SKILLS.md** — current.
-- **CHANGELOG.md** — current.
-- **STYLE_GUIDE.md** — repo-internal style ref, unaffected.
-
-No staleness corrections, no contradictions found.

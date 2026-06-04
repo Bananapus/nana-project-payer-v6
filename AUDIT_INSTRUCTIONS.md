@@ -2,7 +2,7 @@
 
 This repo wraps Juicebox terminal payments behind a simple payer contract and a clone deployer. Audit it as a forwarding layer whose mistakes show up as lost funds, wrong beneficiaries, or stuck tokens.
 
-## Audit Objective
+## Audit objective
 
 There is a billion dollars of well-meaning projects' money in the Juicebox Money Engine, growing exponentially. Your job is to hack it before anyone else. Whoever hacks it first saves/steals the money, and you are obsessed with being this winner, while also being a steward of the protocol and wanting it to keep growing safely.
 
@@ -23,13 +23,13 @@ Review the contracts in `src/`:
 
 Tests, deployment scripts, and docs are supporting context. Fork tests in `test/fork/` exercise integration assumptions against Juicebox V6 contracts, but they are not part of the package runtime surface.
 
-## External Dependencies
+## External dependencies
 
 - `@bananapus/core-v6` provides `IJBDirectory`, `IJBTerminal`, and `JBConstants`.
 - `@openzeppelin/contracts` provides `Ownable`, `ERC165`, `Clones`, and `SafeERC20`.
 - `@uniswap/permit2` is a pinned GitHub dev dependency used by fork tests because it is not published to npm.
 
-## Review Focus
+## Review focus
 
 - Terminal lookup and trust in `DIRECTORY.primaryTerminalOf(projectId, token)`.
 - ETH forwarding through `receive()`, `pay()`, and `addToBalanceOf()`.
@@ -39,7 +39,7 @@ Tests, deployment scripts, and docs are supporting context. Fork tests in `test/
 - Beneficiary fallback behavior when no explicit or default beneficiary is set.
 - Stuck-token posture for direct ERC-20 transfers that bypass payer functions.
 
-## Practical Commands
+## Practical commands
 
 ```bash
 npm install

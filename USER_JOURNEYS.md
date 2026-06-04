@@ -1,10 +1,10 @@
 # User Journeys
 
-## Repo Purpose
+## Repo purpose
 
 This repo provides a way for anyone to deploy a payable address that automatically routes received funds to a Juicebox V6 project treasury. It gives projects simple deposit addresses that work with regular ETH transfers.
 
-## Primary Actors
+## Primary actors
 
 | Actor | Description |
 |---|---|
@@ -12,7 +12,7 @@ This repo provides a way for anyone to deploy a payable address that automatical
 | **Payer** | Sends ETH or ERC-20 tokens to the project payer address. |
 | **Integrator** | A contract or frontend that routes payments through the project payer. |
 
-## Key Surfaces
+## Key surfaces
 
 | Surface | Contract |
 |---|---|
@@ -22,7 +22,7 @@ This repo provides a way for anyone to deploy a payable address that automatical
 | Add to balance | `JBProjectPayer.addToBalanceOf()` |
 | Configure defaults | `JBProjectPayer.setDefaultValues()` |
 
-## Journey 1: Project Owner Deploys a Payer
+## Journey 1: Project owner deploys a payer
 
 **Actor**: Project owner
 
@@ -45,7 +45,7 @@ This repo provides a way for anyone to deploy a payable address that automatical
 - A new `JBProjectPayer` clone exists with the specified defaults.
 - The deploying address is recorded as the owner (unless a different owner was specified).
 
-## Journey 2: Payer Sends ETH
+## Journey 2: Payer sends ETH
 
 **Actor**: Any address (EOA or contract)
 
@@ -70,7 +70,7 @@ This repo provides a way for anyone to deploy a payable address that automatical
 - The project's terminal balance increases by the payment amount.
 - If in `pay` mode, project tokens are minted to the beneficiary.
 
-## Journey 3: Integrator Routes ERC-20 Tokens
+## Journey 3: Integrator routes ERC-20 tokens
 
 **Actor**: A contract or frontend routing ERC-20 payments
 
@@ -94,14 +94,14 @@ This repo provides a way for anyone to deploy a payable address that automatical
 - Tokens are transferred from the caller to the project's terminal.
 - If using `pay()`, project tokens are minted to the specified beneficiary.
 
-## Trust Boundaries
+## Trust boundaries
 
 - The project payer trusts `JBDirectory` to return the correct terminal.
 - The project payer trusts the terminal to handle funds correctly.
 - The owner is trusted to configure sensible defaults.
 - Relayed or contract-based payments should set an explicit beneficiary instead of relying on the `msg.sender` fallback.
 
-## Hand-Offs
+## Hand-offs
 
 - Funds are handed off to the project's terminal (`IJBTerminal.pay()` or `IJBTerminal.addToBalanceOf()`).
 - From there, the terminal handles recording, token minting, and hook execution per the standard Juicebox V6 flow.
