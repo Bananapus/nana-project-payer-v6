@@ -29,9 +29,8 @@ contract JBProjectPayerForwardingHarness is JBProjectPayer {
         pure
         returns (address)
     {
-        return beneficiary != address(0)
-            ? beneficiary
-            : defaultBeneficiary_ != address(0) ? defaultBeneficiary_ : sender;
+        return
+            beneficiary != address(0) ? beneficiary : defaultBeneficiary_ != address(0) ? defaultBeneficiary_ : sender;
     }
 }
 
@@ -120,7 +119,8 @@ contract JBProjectPayerForwardingHalmos {
     }
 
     /// @notice ERC-165 surface advertises EXACTLY the payer, tracker, and base ERC-165 interfaces — no more, no less
-    /// (invariant D.9). Duplicates the existing Halmos check on the production `supportsInterface` over the clone shape.
+    /// (invariant D.9). Duplicates the existing Halmos check on the production `supportsInterface` over the clone
+    /// shape.
     function check_supportsExactlyDeclaredInterfaces(bytes4 interfaceId) public {
         JBProjectPayerForwardingHarness h = new JBProjectPayerForwardingHarness(IJBDirectory(address(1)));
 

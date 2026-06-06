@@ -383,13 +383,7 @@ contract JBProjectPayerForwarding is Test {
     // ------------------------------------------------ //
 
     /// @notice No address other than the deployer factory can (re-)initialize a clone — for any caller and any args.
-    function testFuzz_initializeRejectsNonDeployer(
-        address attacker,
-        uint256 projectId,
-        address newOwner
-    )
-        public
-    {
+    function testFuzz_initializeRejectsNonDeployer(address attacker, uint256 projectId, address newOwner) public {
         RecordingTerminal term = new RecordingTerminal();
         (IJBProjectPayer payer, FwdMockDirectory dir) = _deploy(IJBTerminal(address(term)), defaultBen, false);
         address deployer = payer.DEPLOYER();
@@ -426,13 +420,7 @@ contract JBProjectPayerForwarding is Test {
     }
 
     /// @notice Owner mutation sets all five default fields exactly.
-    function testFuzz_setDefaultValuesSetsAllFields(
-        uint256 newProject,
-        address newBen,
-        bool addToBalance
-    )
-        public
-    {
+    function testFuzz_setDefaultValuesSetsAllFields(uint256 newProject, address newBen, bool addToBalance) public {
         RecordingTerminal term = new RecordingTerminal();
         (IJBProjectPayer payer,) = _deploy(IJBTerminal(address(term)), defaultBen, false);
 
