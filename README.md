@@ -95,9 +95,14 @@ forge script script/Deploy.s.sol --broadcast --rpc-url <RPC_URL>
 ## Risks and notes
 
 - **Beneficiary fallback**: When no beneficiary is configured, project tokens go to `msg.sender`. Smart contract wallets and relayers should set a `defaultBeneficiary` or pass an explicit beneficiary.
+- **Price-sensitive payments**: The plain `receive()` path has no caller-supplied quote metadata. Use explicit `pay()`
+  when the route, beneficiary, memo, or token count must be controlled.
+- **Terminal drift**: Project terminal routing can change after a payer is deployed. Integrations should recheck the
+  resolved terminal before relying on an old deposit address for a value-sensitive flow.
 - **Fee-on-transfer tokens**: The contract measures actual balance changes, correctly handling fee-on-transfer tokens.
 - **ERC-20 approval**: The payer approves the terminal for each payment. Residual allowances may remain if the terminal doesn't pull the full amount.
 - **No sweep function**: Tokens accidentally sent to the payer (outside of `pay()`/`addToBalanceOf()`) may be stuck. This is intentional to keep the contract simple.
+- **Original payer**: `originalPayer` is a routing hint for downstream consumers, not authenticated identity.
 
 ## For AI agents
 
