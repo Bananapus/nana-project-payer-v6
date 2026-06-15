@@ -10,7 +10,7 @@ import {IJBTerminal} from "@bananapus/core-v6/src/interfaces/IJBTerminal.sol";
 import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
 import {JBProjectPayer} from "../../src/JBProjectPayer.sol";
 import {IJBProjectPayer} from "../../src/interfaces/IJBProjectPayer.sol";
-import {IJBPayerTracker} from "../../src/interfaces/IJBPayerTracker.sol";
+import {IJBPayerTracker} from "@bananapus/core-v6/src/interfaces/IJBPayerTracker.sol";
 import {JBProjectPayerDeployer} from "../../src/JBProjectPayerDeployer.sol";
 
 /// @notice Fee-on-transfer ERC-20: every `transferFrom`/`transfer` burns `feeBps`/10000 of the moved amount, so the

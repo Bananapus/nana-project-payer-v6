@@ -9,7 +9,7 @@ import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IJBDirectory} from "@bananapus/core-v6/src/interfaces/IJBDirectory.sol";
 import {IJBTerminal} from "@bananapus/core-v6/src/interfaces/IJBTerminal.sol";
 import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
-import {IJBPayerTracker} from "./interfaces/IJBPayerTracker.sol";
+import {IJBPayerTracker} from "@bananapus/core-v6/src/interfaces/IJBPayerTracker.sol";
 import {IJBProjectPayer} from "./interfaces/IJBProjectPayer.sol";
 
 /// @notice A payment relay that forwards ETH or ERC-20 tokens to a Juicebox project's treasury. Can be used as a
@@ -97,6 +97,9 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
 
     /// @notice Received funds are paid to the default project using the stored default properties.
     /// @dev Uses `addToBalanceOf` if there's a preference to do so. Otherwise uses `pay`.
+    /// @dev On the `pay` path the default beneficiary is forwarded as-is; when it is `address(0)`, `_pay` resolves
+    /// the beneficiary to the original payer — the upstream payer if the immediate caller is an `IJBPayerTracker`
+    /// (e.g. `JBProjects` reporting the new project's owner), otherwise the immediate caller itself.
     /// @dev This function is called automatically when the contract receives an ETH payment.
     receive() external payable virtual override {
         if (defaultAddToBalance) {
@@ -112,7 +115,7 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
                 projectId: defaultProjectId,
                 token: JBConstants.NATIVE_TOKEN,
                 amount: msg.value,
-                beneficiary: defaultBeneficiary == address(0) ? payable(msg.sender) : defaultBeneficiary,
+                beneficiary: defaultBeneficiary,
                 minReturnedTokens: 0,
                 memo: defaultMemo,
                 metadata: defaultMetadata
@@ -341,14 +344,17 @@ contract JBProjectPayer is Ownable, ERC165, IJBPayerTracker, IJBProjectPayer {
         // refunds at the intermediary.
         originalPayer = _originalPayerOrSender();
 
-        // Send funds to the terminal.
+        // Send funds to the terminal. When no explicit or default beneficiary is set, mint to the original payer
+        // (`originalPayer`, just resolved above) rather than this intermediary: the upstream payer when the caller
+        // is an `IJBPayerTracker`, otherwise the immediate caller. EOAs and non-tracker contracts resolve to the
+        // immediate caller, preserving the prior `msg.sender` fallback.
         terminal.pay{value: payableValue}({
             projectId: projectId,
             token: token,
             amount: amount,
             beneficiary: beneficiary != address(0)
                 ? beneficiary
-                : defaultBeneficiary != address(0) ? defaultBeneficiary : msg.sender,
+                : defaultBeneficiary != address(0) ? defaultBeneficiary : originalPayer,
             minReturnedTokens: minReturnedTokens,
             memo: memo,
             metadata: metadata

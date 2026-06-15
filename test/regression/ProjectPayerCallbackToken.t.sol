@@ -11,7 +11,7 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 
 import {JBProjectPayerDeployer} from "../../src/JBProjectPayerDeployer.sol";
 import {IJBProjectPayer} from "../../src/interfaces/IJBProjectPayer.sol";
-import {IJBPayerTracker} from "../../src/interfaces/IJBPayerTracker.sol";
+import {IJBPayerTracker} from "@bananapus/core-v6/src/interfaces/IJBPayerTracker.sol";
 
 contract CallbackTokenDirectory {
     IJBTerminal internal _terminal;

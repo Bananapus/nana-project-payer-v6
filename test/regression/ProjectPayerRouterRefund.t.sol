@@ -9,7 +9,7 @@ import {IJBDirectory} from "@bananapus/core-v6/src/interfaces/IJBDirectory.sol";
 import {IJBTerminal} from "@bananapus/core-v6/src/interfaces/IJBTerminal.sol";
 import {JBProjectPayerDeployer} from "../../src/JBProjectPayerDeployer.sol";
 import {IJBProjectPayer} from "../../src/interfaces/IJBProjectPayer.sol";
-import {IJBPayerTracker} from "../../src/interfaces/IJBPayerTracker.sol";
+import {IJBPayerTracker} from "@bananapus/core-v6/src/interfaces/IJBPayerTracker.sol";
 import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
 
 contract MockToken is ERC20 {

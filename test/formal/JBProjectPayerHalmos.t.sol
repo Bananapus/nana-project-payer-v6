@@ -3,7 +3,7 @@ pragma solidity 0.8.28;
 
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {IJBDirectory} from "@bananapus/core-v6/src/interfaces/IJBDirectory.sol";
-import {IJBPayerTracker} from "../../src/interfaces/IJBPayerTracker.sol";
+import {IJBPayerTracker} from "@bananapus/core-v6/src/interfaces/IJBPayerTracker.sol";
 import {IJBProjectPayer} from "../../src/interfaces/IJBProjectPayer.sol";
 import {JBProjectPayer} from "../../src/JBProjectPayer.sol";
 

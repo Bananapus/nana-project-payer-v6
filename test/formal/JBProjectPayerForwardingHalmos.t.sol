@@ -8,7 +8,7 @@ import {IJBTerminal} from "@bananapus/core-v6/src/interfaces/IJBTerminal.sol";
 import {JBConstants} from "@bananapus/core-v6/src/libraries/JBConstants.sol";
 import {JBProjectPayer} from "../../src/JBProjectPayer.sol";
 import {IJBProjectPayer} from "../../src/interfaces/IJBProjectPayer.sol";
-import {IJBPayerTracker} from "../../src/interfaces/IJBPayerTracker.sol";
+import {IJBPayerTracker} from "@bananapus/core-v6/src/interfaces/IJBPayerTracker.sol";
 
 /// @notice Subclass that exposes the production beneficiary-resolution and amount/value-handling rules through
 /// public pure/view shims so a symbolic engine can explore the full input space WITHOUT touching `src/`. Each shim
@@ -18,8 +18,10 @@ import {IJBPayerTracker} from "../../src/interfaces/IJBPayerTracker.sol";
 contract JBProjectPayerForwardingHarness is JBProjectPayer {
     constructor(IJBDirectory directory) JBProjectPayer(directory) {}
 
-    /// @notice Spec mirror of `_pay`'s beneficiary fallback ternary (`src/JBProjectPayer.sol:349-351`).
-    /// `beneficiary != 0 ? beneficiary : defaultBeneficiary != 0 ? defaultBeneficiary : sender`.
+    /// @notice Spec mirror of `_pay`'s beneficiary fallback ternary.
+    /// `beneficiary != 0 ? beneficiary : defaultBeneficiary != 0 ? defaultBeneficiary : originalPayer`. The terminal
+    /// `sender` arm models the resolved original payer (`_originalPayerOrSender()`), which equals the immediate
+    /// caller for EOAs and non-tracker contracts and the advertised upstream payer for `IJBPayerTracker` callers.
     function specResolveBeneficiary(
         address beneficiary,
         address defaultBeneficiary_,
