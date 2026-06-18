@@ -1,12 +1,13 @@
 {
   "name": "@bananapus/project-payer-v6",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Bananapus/nana-project-payer-v6.git"
   },
   "files": [
+    "deployments/",
     "foundry.toml",
     "remappings.txt",
     "script/",
